@@ -16,11 +16,11 @@ public class Listener {
     private LocalDate birthDate;
     private String profilePhotoUrl;
 
-    public Long getId() {
-    }
-
-    public String getUsername() {
-    }
+//    public Long getId() {
+//    }
+//
+//    public String getUsername() {
+//    }
 
 
 
