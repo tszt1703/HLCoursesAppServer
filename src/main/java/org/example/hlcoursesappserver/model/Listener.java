@@ -20,15 +20,6 @@ public class Listener {
     public Listener() {
     }
 
-    public Listener(String firstName, String lastName, String email, String password, LocalDate birthDate, String profilePhotoUrl) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.birthDate = birthDate;
-        this.profilePhotoUrl = profilePhotoUrl;
-    }
-
     public Listener(String email, String password) {
         this.email = email;
         this.password = password;

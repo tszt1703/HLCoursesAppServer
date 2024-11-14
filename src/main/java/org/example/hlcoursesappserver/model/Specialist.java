@@ -22,17 +22,6 @@ public class Specialist {
     public Specialist() {
     }
 
-    public Specialist(String firstName, String lastName, String email, String password, LocalDate birthDate, String profilePhotoUrl, String description, String certificationDocumentUrl) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.birthDate = birthDate;
-        this.profilePhotoUrl = profilePhotoUrl;
-        this.description = description;
-        this.certificationDocumentUrl = certificationDocumentUrl;
-    }
-
     public Specialist(String email, String password) {
         this.email = email;
         this.password = password;
