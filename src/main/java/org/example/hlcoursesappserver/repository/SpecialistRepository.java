@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface SpecialistRepository extends JpaRepository<Specialist, Long> {
     Optional<Specialist> findByEmail(String email);
+    boolean existsByEmail(String email);
 }
 
 

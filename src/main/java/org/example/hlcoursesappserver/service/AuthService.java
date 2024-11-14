@@ -1,17 +1,5 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.dto.AuthRequest;
-import org.example.hlcoursesappserver.dto.UserDTO;
-import org.example.hlcoursesappserver.model.Listener;
-import org.example.hlcoursesappserver.model.Specialist;
-import org.example.hlcoursesappserver.repository.ListenerRepository;
-import org.example.hlcoursesappserver.repository.SpecialistRepository;
-import org.example.hlcoursesappserver.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,15 +1,24 @@
 package org.example.hlcoursesappserver.dto;
 
 public class UserDTO {
+    private final Long userId;
     private Long id;
     private String username;
     private String role;
 
-    public UserDTO() {}
+    public UserDTO(Long userId) {
+        this.userId = userId;
+    }
 
-    public UserDTO(Long id, String username, String role) {
+    public UserDTO(Long userId, Long id, String username, String role) {
+        this.userId = userId;
         this.id = id;
         this.username = username;
+        this.role = role;
+    }
+
+    public UserDTO(Long userId, String role) {
+        this.userId = userId;
         this.role = role;
     }
 

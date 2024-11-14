@@ -4,32 +4,18 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "messages")
 public class Message {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long message_id;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Listener sender;
+    private Long sender_id;
+    private Long receiver_id;
+    private String sender_role;
+    private String receiver_role;
+    private String message_text;
+    private LocalDateTime sent_at;
 
-    @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private Specialist receiver;
-
-    @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
-
-    public void setSender(Listener sender) {
-    }
-
-    public void setReceiver(Specialist receiver) {
-
-    }
-
-    // Constructors, Getters, and Setters
+    // Getters and setters
 }

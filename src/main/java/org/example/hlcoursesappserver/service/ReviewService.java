@@ -1,17 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.dto.ReviewDTO;
-import org.example.hlcoursesappserver.model.Course;
-import org.example.hlcoursesappserver.model.Listener;
-import org.example.hlcoursesappserver.model.Review;
-import org.example.hlcoursesappserver.repository.CourseRepository;
-import org.example.hlcoursesappserver.repository.ListenerRepository;
-import org.example.hlcoursesappserver.repository.ReviewRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReviewService {

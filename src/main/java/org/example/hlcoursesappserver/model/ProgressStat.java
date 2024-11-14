@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
-public class Review {
+@Table(name = "progress_stats")
+public class ProgressStat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long review_id;
+    private Long progress_id;
 
     @ManyToOne
     @JoinColumn(name = "listener_id", nullable = false)
@@ -18,9 +18,10 @@ public class Review {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    private int rating;
-    private String review_text;
-    private LocalDateTime created_at;
+    private int lessons_completed;
+    private int tests_passed;
+    private double progress_percent;
+    private LocalDateTime last_accessed;
 
     // Getters and setters
 }

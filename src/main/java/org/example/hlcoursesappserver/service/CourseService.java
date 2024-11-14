@@ -1,10 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.model.Course;
-import org.example.hlcoursesappserver.repository.CourseRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CourseService {

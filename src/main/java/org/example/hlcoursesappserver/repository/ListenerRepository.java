@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface ListenerRepository extends JpaRepository<Listener, Long> {
     Optional<Listener> findByEmail(String email);
-
+    boolean existsByEmail(String email);
 }

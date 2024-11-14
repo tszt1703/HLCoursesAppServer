@@ -1,12 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.model.Specialist;
-import org.example.hlcoursesappserver.repository.SpecialistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SpecialistService {
