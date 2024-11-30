@@ -1,0 +1,9 @@
+Основной порт локального сервера - http://localhost:8080
+
+URL с использованием ngrok: https://up-stinkbug-socially.ngrok-free.app
+
+Проверка запросов на сервере: http://localhost:4040/inspect/http
+
+Запуск ngrok: ngrok http --url=up-stinkbug-socially.ngrok-free.app 8080
+
+
