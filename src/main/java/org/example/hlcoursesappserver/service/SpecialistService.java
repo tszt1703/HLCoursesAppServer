@@ -33,8 +33,13 @@ public class SpecialistService {
         return specialistRepository.findByEmail(email);
     }
 
+    public Specialist getSpecialistById(Long id) {
+        return specialistRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Specialist not found"));
+    }
+
     // Обновить специалиста
-    public Specialist updateSpecialist(Long id, Specialist specialistDetails) {
+    public void updateSpecialist(Long id, Specialist specialistDetails) {
         Specialist specialist = specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
         specialist.setFirstName(specialistDetails.getFirstName());
@@ -44,13 +49,32 @@ public class SpecialistService {
         specialist.setProfilePhotoUrl(specialistDetails.getProfilePhotoUrl());
         specialist.setDescription(specialistDetails.getDescription());
         specialist.setCertificationDocumentUrl(specialistDetails.getCertificationDocumentUrl());
-        return specialistRepository.save(specialist);
+        specialistRepository.save(specialist);
     }
+
+    // В SpecialistService
+    public boolean isUserAuthorizedToUpdate(Long id, String email) {
+        // Логика проверки, имеет ли пользователь с таким email право обновить специалиста с данным id
+        Specialist specialist = specialistRepository.findById(id).orElse(null);
+        if (specialist != null && specialist.getEmail().equals(email)) {
+            return true;
+        }
+        return false;
+    }
+
+
 
     // Удалить специалиста
     public void deleteSpecialist(Long id) {
         Specialist specialist = specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
         specialistRepository.delete(specialist);
+    }
+
+    // Проверка, может ли текущий пользователь удалить специалиста
+    public boolean isUserAuthorizedToDelete(Long id, String emailFromToken) {
+        Specialist specialist = specialistRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Specialist not found"));
+        return specialist.getEmail().equals(emailFromToken);
     }
 }

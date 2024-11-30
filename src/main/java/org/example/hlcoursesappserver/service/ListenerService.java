@@ -33,8 +33,13 @@ public class ListenerService {
         return listenerRepository.findByEmail(email);
     }
 
+    public Listener getListenerById(Long id) {
+        return listenerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listener not found"));
+    }
+
     // Обновить слушателя
-    public Listener updateListener(Long id, Listener listenerDetails) {
+    public void updateListener(Long id, Listener listenerDetails) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
         listener.setFirstName(listenerDetails.getFirstName());
@@ -42,13 +47,31 @@ public class ListenerService {
         listener.setEmail(listenerDetails.getEmail());
         listener.setBirthDate(listenerDetails.getBirthDate());
         listener.setProfilePhotoUrl(listenerDetails.getProfilePhotoUrl());
-        return listenerRepository.save(listener);
+        listenerRepository.save(listener);
     }
+
+    // В ListenerService
+    public boolean isUserAuthorizedToUpdate(Long id, String email) {
+        // Логика проверки, имеет ли пользователь с таким email право обновить слушателя с данным id
+        Listener listener = listenerRepository.findById(id).orElse(null);
+        if (listener != null && listener.getEmail().equals(email)) {
+            return true;
+        }
+        return false;
+    }
+
 
     // Удалить слушателя
     public void deleteListener(Long id) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
         listenerRepository.delete(listener);
+    }
+
+    // Проверка, может ли текущий пользователь удалить слушателя
+    public boolean isUserAuthorizedToDelete(Long id, String emailFromToken) {
+        Listener listener = listenerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listener not found"));
+        return listener.getEmail().equals(emailFromToken);
     }
 }
