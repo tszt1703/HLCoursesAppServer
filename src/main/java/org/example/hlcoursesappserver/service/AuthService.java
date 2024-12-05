@@ -1,51 +1,46 @@
 package org.example.hlcoursesappserver.service;
 
+import org.example.hlcoursesappserver.dto.CustomAuthentication;
+import org.example.hlcoursesappserver.dto.LoginRequest;
+import org.example.hlcoursesappserver.model.Listener;
+import org.example.hlcoursesappserver.model.Specialist;
+import org.example.hlcoursesappserver.repository.ListenerRepository;
+import org.example.hlcoursesappserver.repository.SpecialistRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
-//
-//    @Autowired
-//    private AuthenticationManager authenticationManager;
-//
-//    @Autowired
-//    private JwtUtil jwtUtil;
-//
-//    @Autowired
-//    private ListenerRepository listenerRepository;
-//
-//    @Autowired
-//    private SpecialistRepository specialistRepository;
-//
-//    public String authenticate(AuthRequest authRequest) {
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-//
-//        UserDetails userDetails = loadUserByUsername(authRequest.getUsername());
-//        return jwtUtil.generateToken(userDetails);
-//    }
-//
-//    public UserDTO registerListener(Listener listener) {
-//        listener = listenerRepository.save(listener);
-//        return new UserDTO(listener.getId(), listener.getUsername(), "Listener");
-//    }
-//
-//    public UserDTO registerSpecialist(Specialist specialist) {
-//        specialist = specialistRepository.save(specialist);
-//        return new UserDTO(specialist.getId(), specialist.getUsername(), "Specialist");
-//    }
-//
-//    public UserDetails loadUserByUsername(String username) {
-//        Listener listener = listenerRepository.findByUsername(username).orElse(null);
-//        if (listener != null) {
-//            return listener;
-//        }
-//
-//        Specialist specialist = specialistRepository.findByUsername(username).orElse(null);
-//        if (specialist != null) {
-//            return specialist;
-//        }
-//
-//        throw new UsernameNotFoundException("User not found");
-//    }
+
+    private final ListenerRepository listenerRepository;
+
+    private final SpecialistRepository specialistRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthService(ListenerRepository listenerRepository, SpecialistRepository specialistRepository, PasswordEncoder passwordEncoder) {
+        this.listenerRepository = listenerRepository;
+        this.specialistRepository = specialistRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public CustomAuthentication authenticateUser(LoginRequest request) {
+        // Ищем пользователя среди слушателей
+        Optional<Listener> listenerOpt = listenerRepository.findByEmail(request.getEmail());
+        if (listenerOpt.isPresent() && passwordEncoder.matches(request.getPassword(), listenerOpt.get().getPassword())) {
+            return new CustomAuthentication(listenerOpt.get().getListenerId(), "Listener");
+        }
+
+        // Ищем пользователя среди специалистов
+        Optional<Specialist> specialistOpt = specialistRepository.findByEmail(request.getEmail());
+        if (specialistOpt.isPresent() && passwordEncoder.matches(request.getPassword(), specialistOpt.get().getPassword())) {
+            return new CustomAuthentication(specialistOpt.get().getSpecialistId(), "Specialist");
+        }
+
+        // Если пользователь не найден
+        return null;
+    }
+
 }
