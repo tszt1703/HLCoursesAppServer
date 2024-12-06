@@ -1,127 +1,113 @@
 package org.example.hlcoursesappserver.controller;
 
 import org.example.hlcoursesappserver.dto.UserDTO;
+import org.example.hlcoursesappserver.mapper.UserMapper;
 import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.service.ListenerService;
 import org.example.hlcoursesappserver.service.SpecialistService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final SpecialistService specialistService;
-
     private final ListenerService listenerService;
+    private final UserMapper userMapper;
 
-    public UserController(ListenerService listenerService, SpecialistService specialistService) {
-        this.listenerService = listenerService;
+    @Autowired
+    public UserController(SpecialistService specialistService, ListenerService listenerService, UserMapper userMapper) {
         this.specialistService = specialistService;
+        this.listenerService = listenerService;
+        this.userMapper = userMapper;
     }
 
-    @GetMapping("/listener/{id}")
-    public ResponseEntity<Listener> getListenerById(@PathVariable("id") Long id) {
-        Listener listener = listenerService.getListenerById(id);
-        return ResponseEntity.ok(listener);
+    @PostMapping("/specialist")
+    public ResponseEntity<UserDTO> createSpecialist(@RequestBody UserDTO userDTO) {
+        Specialist specialist = userMapper.toSpecialist(userDTO);
+        Specialist createdSpecialist = specialistService.createUser(specialist);
+        return ResponseEntity.ok(userMapper.toUserDTO(createdSpecialist, "Specialist"));
     }
 
-    @GetMapping("/specialist/{id}")
-    public ResponseEntity<Specialist> getSpecialistById(@PathVariable("id") Long id) {
-        Specialist specialist = specialistService.getSpecialistById(id);
-        return ResponseEntity.ok(specialist);
+    @PostMapping("/listener")
+    public ResponseEntity<UserDTO> createListener(@RequestBody UserDTO userDTO) {
+        Listener listener = userMapper.toListener(userDTO);
+        Listener createdListener = listenerService.createUser(listener);
+        return ResponseEntity.ok(userMapper.toUserDTO(createdListener, "Listener"));
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable("id") Long id,
-                                              @RequestParam("userType") String userType) {
-        if ("specialist".equalsIgnoreCase(userType)) {
-            Specialist specialist = specialistService.getSpecialistById(id);
-            return ResponseEntity.ok(specialist);
-        } else if ("listener".equalsIgnoreCase(userType)) {
-            Listener listener = listenerService.getListenerById(id);
-            return ResponseEntity.ok(listener);
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<Specialist> specialists = specialistService.getAllUsers();
+        List<Listener> listeners = listenerService.getAllUsers();
+        List<UserDTO> users = userMapper.toUserDTOList(specialists, listeners);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        Optional<Specialist> specialistOpt = specialistService.getUserByEmail(email);
+        if (specialistOpt.isPresent()) {
+            Specialist specialist = specialistOpt.get();
+            return ResponseEntity.ok(userMapper.toUserDTO(specialist, "Specialist"));
         }
 
-        return ResponseEntity.status(400).body("Invalid user type");
+        Optional<Listener> listenerOpt = listenerService.getUserByEmail(email);
+        if (listenerOpt.isPresent()) {
+            Listener listener = listenerOpt.get();
+            return ResponseEntity.ok(userMapper.toUserDTO(listener, "Listener"));
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
-
-    // Контроллер для обновления пользователя
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(
-            @PathVariable("id") Long id,
-            @RequestBody @Valid UserDTO userDTO,
-            @RequestParam("userType") String userType,
-            Authentication authentication) {
-
-        // Получаем email пользователя из токена
-        String emailFromToken = authentication.getName();
-
-        if ("specialist".equalsIgnoreCase(userType)) {
-            if (specialistService.isUserAuthorizedToUpdate(id, emailFromToken)) {
-                specialistService.updateSpecialist(id, convertToSpecialist(userDTO));
-                return ResponseEntity.ok("Specialist successfully updated.");
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserDTO userDTO,
+            @RequestHeader("email") String email) {
+        if (userDTO.getRole().equals("Specialist")) {
+            if (!specialistService.isUserAuthorizedToUpdate(id, email)) {
+                return ResponseEntity.status(403).build();
             }
-        } else if ("listener".equalsIgnoreCase(userType)) {
-            if (listenerService.isUserAuthorizedToUpdate(id, emailFromToken)) {
-                listenerService.updateListener(id, convertToListener(userDTO));
-                return ResponseEntity.ok("Listener successfully updated.");
+            Specialist updatedSpecialist = userMapper.toSpecialist(userDTO);
+            specialistService.updateUser(id, updatedSpecialist);
+            return ResponseEntity.ok().build();
+        } else if (userDTO.getRole().equals("Listener")) {
+            if (!listenerService.isUserAuthorizedToUpdate(id, email)) {
+                return ResponseEntity.status(403).build();
             }
+            Listener updatedListener = userMapper.toListener(userDTO);
+            listenerService.updateUser(id, updatedListener);
+            return ResponseEntity.ok().build();
         }
-
-        return ResponseEntity.status(403).body("You are not authorized to update this user.");
+        return ResponseEntity.badRequest().build();
     }
 
-    private Specialist convertToSpecialist(UserDTO userDTO) {
-        Specialist specialist = new Specialist();
-        specialist.setFirstName(userDTO.getFirstName());
-        specialist.setLastName(userDTO.getLastName());
-        specialist.setEmail(userDTO.getEmail());
-        specialist.setProfilePhotoUrl(userDTO.getProfilePhotoUrl());
-        specialist.setDescription(userDTO.getDescription());
-        specialist.setCertificationDocumentUrl(userDTO.getCertificationDocumentUrl());
-        specialist.setBirthDate(userDTO.getBirthDate());
-        return specialist;
-    }
-
-    private Listener convertToListener(UserDTO userDTO) {
-        Listener listener = new Listener();
-        listener.setFirstName(userDTO.getFirstName());
-        listener.setLastName(userDTO.getLastName());
-        listener.setEmail(userDTO.getEmail());
-        listener.setProfilePhotoUrl(userDTO.getProfilePhotoUrl());
-        listener.setBirthDate(userDTO.getBirthDate());
-        return listener;
-    }
-
-    // Удаление пользователя
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(
-            @PathVariable("id") Long id,
-            @RequestParam("userType") String userType,
-            Authentication authentication) {
-
-        // Получаем email пользователя из токена
-        String emailFromToken = authentication.getName(); // email, извлеченный из токена
-
-        if ("specialist".equalsIgnoreCase(userType)) {
-            if (specialistService.isUserAuthorizedToDelete(id, emailFromToken)) {
-                specialistService.deleteSpecialist(id);
-                return ResponseEntity.ok("Specialist successfully deleted.");
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long id,
+            @RequestHeader("email") String email,
+            @RequestParam String role) {
+        if (role.equals("Specialist")) {
+            if (!specialistService.isUserAuthorizedToDelete(id, email)) {
+                return ResponseEntity.status(403).build();
             }
-        } else if ("listener".equalsIgnoreCase(userType)) {
-            if (listenerService.isUserAuthorizedToDelete(id, emailFromToken)) {
-                listenerService.deleteListener(id);
-                return ResponseEntity.ok("Listener successfully deleted.");
+            specialistService.deleteUser(id);
+            return ResponseEntity.ok().build();
+        } else if (role.equals("Listener")) {
+            if (!listenerService.isUserAuthorizedToDelete(id, email)) {
+                return ResponseEntity.status(403).build();
             }
+            listenerService.deleteUser(id);
+            return ResponseEntity.ok().build();
         }
-
-        return ResponseEntity.status(403).body("You are not authorized to delete this user.");
+        return ResponseEntity.badRequest().build();
     }
 }

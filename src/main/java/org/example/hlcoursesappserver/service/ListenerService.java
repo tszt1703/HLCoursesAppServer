@@ -10,68 +10,70 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ListenerService {
+public class ListenerService implements UserService<Listener> {
 
-    @Autowired
-    private ListenerRepository listenerRepository;
+    private final ListenerRepository listenerRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // Создание слушателя
-    public Listener createListener(Listener listener) {
+    @Autowired
+    public ListenerService(ListenerRepository listenerRepository) {
+        this.listenerRepository = listenerRepository;
+    }
+
+    @Override
+    public Listener createUser(Listener listener) {
         listener.setPassword(passwordEncoder.encode(listener.getPassword()));
         return listenerRepository.save(listener);
     }
 
-    // Получить всех слушателей
-    public List<Listener> getAllListeners() {
+    @Override
+    public List<Listener> getAllUsers() {
         return listenerRepository.findAll();
     }
 
-    // Получить слушателя по email
-    public Optional<Listener> getListenerByEmail(String email) {
+    @Override
+    public Optional<Listener> getUserByEmail(String email) {
         return listenerRepository.findByEmail(email);
     }
 
-    public Listener getListenerById(Long id) {
+    @Override
+    public Listener getUserById(Long id) {
         return listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
     }
 
-    // Обновить слушателя
-    public void updateListener(Long id, Listener listenerDetails) {
+    @Override
+    public void updateUser(Long id, Listener userDetails) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
-        listener.setFirstName(listenerDetails.getFirstName());
-        listener.setLastName(listenerDetails.getLastName());
-        listener.setEmail(listenerDetails.getEmail());
-        listener.setBirthDate(listenerDetails.getBirthDate());
-        listener.setProfilePhotoUrl(listenerDetails.getProfilePhotoUrl());
+        listener.setFirstName(userDetails.getFirstName());
+        listener.setLastName(userDetails.getLastName());
+        listener.setEmail(userDetails.getEmail());
+        listener.setBirthDate(userDetails.getBirthDate());
+        listener.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
         listenerRepository.save(listener);
     }
 
-    // В ListenerService
-    public boolean isUserAuthorizedToUpdate(Long id, String email) {
-        // Логика проверки, имеет ли пользователь с таким email право обновить слушателя с данным id
-        Listener listener = listenerRepository.findById(id).orElse(null);
-        if (listener != null && listener.getEmail().equals(email)) {
-            return true;
-        }
-        return false;
-    }
-
-
-    // Удалить слушателя
-    public void deleteListener(Long id) {
+    @Override
+    public void deleteUser(Long id) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
         listenerRepository.delete(listener);
     }
 
-    // Проверка, может ли текущий пользователь удалить слушателя
-    public boolean isUserAuthorizedToDelete(Long id, String emailFromToken) {
+    @Override
+    public boolean isUserAuthorizedToUpdate(Long id, String email) {
+        Listener listener = listenerRepository.findById(id).orElse(null);
+        return listener != null && listener.getEmail().equals(email);
+    }
+
+    @Override
+    public boolean isUserAuthorizedToDelete(Long id, String email) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
-        return listener.getEmail().equals(emailFromToken);
+        return listener.getEmail().equals(email);
     }
+
+
 }

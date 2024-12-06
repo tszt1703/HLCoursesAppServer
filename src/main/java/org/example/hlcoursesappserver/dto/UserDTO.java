@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.dto;
 
+
 import java.time.LocalDate;
 
 public class UserDTO {
@@ -9,28 +10,27 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String profilePhotoUrl;
-    private String description; // Только для Specialists
-    private String certificationDocumentUrl; // Только для Specialists
+    private String description; // Only for Specialists
+    private String certificationDocumentUrl; // Only for Specialists
     private LocalDate birthDate;
 
-    // Конструктор по умолчанию
-    // Публичный конструктор по умолчанию
+    // Default constructor
     public UserDTO() {}
 
-    // Конструктор для создания UserDTO с userId и role
-    public UserDTO(Long id, String role) {
-        this.id = id;
-        this.role = role;
-    }
-
-    // Конструктор для нового пользователя
+    // Constructor for creating UserDTO with userId, role, and email
     public UserDTO(Long id, String email, String role) {
         this.id = id;
         this.email = email;
         this.role = role;
     }
 
-    // Конструктор для специалиста с дополнительными данными
+    public UserDTO(Long id, String role) {
+        this.id = id;
+        this.role = role;
+    }
+
+
+    // Constructor for new user with more details
     public UserDTO(Long id, String firstName, String lastName, String role,
                    String profilePhotoUrl, String description,
                    String certificationDocumentUrl, LocalDate birthDate) {
@@ -40,16 +40,13 @@ public class UserDTO {
         this.role = role;
         this.profilePhotoUrl = profilePhotoUrl;
         this.birthDate = birthDate;
-
-        // Для Specialists, передаем description и certificationDocumentUrl
         if ("Specialist".equals(role)) {
             this.description = description;
             this.certificationDocumentUrl = certificationDocumentUrl;
         }
     }
 
-    // Геттеры и сеттеры для всех полей
-
+    // Getters and setters for all fields
     public Long getId() {
         return id;
     }
@@ -62,8 +59,8 @@ public class UserDTO {
         return email;
     }
 
-    public void setEmail(String username) {
-        this.email = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getRole() {
@@ -121,6 +118,4 @@ public class UserDTO {
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
-
-
 }
