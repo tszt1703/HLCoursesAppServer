@@ -2,6 +2,7 @@ package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "specialists")
@@ -17,6 +18,7 @@ public class Specialist {
     private LocalDate birthDate;
     private String profilePhotoUrl;
     private String description;
+    private String socialLinks;
     private String certificationDocumentUrl;
 
     public Specialist() {
@@ -94,6 +96,14 @@ public class Specialist {
         this.description = description;
     }
 
+    public String getSocialLinks() {
+        return socialLinks;
+    }
+
+    public void setSocialLinks(String socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
     public String getCertificationDocumentUrl() {
         return certificationDocumentUrl;
     }
@@ -113,6 +123,7 @@ public class Specialist {
                 ", birthDate=" + birthDate +
                 ", profilePhotoUrl='" + profilePhotoUrl + '\'' +
                 ", description='" + description + '\'' +
+                ", socialLinks='" + socialLinks + '\'' +
                 ", certificationDocumentUrl='" + certificationDocumentUrl + '\'' +
                 '}';
     }

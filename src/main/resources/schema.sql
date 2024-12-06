@@ -8,6 +8,7 @@ CREATE TABLE Specialists (
                              birth_date DATE,
                              profile_photo_url TEXT,  -- ссылка на фото профиля
                              description TEXT,
+                             social_links TEXT,
                              certification_document_url TEXT,  -- документы, подтверждающие образование
                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -20,6 +21,7 @@ CREATE TABLE Listeners (
                            password VARCHAR(100) NOT NULL,
                            birth_date DATE,
                            profile_photo_url TEXT,  -- ссылка на фото профиля
+                           description TEXT,
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

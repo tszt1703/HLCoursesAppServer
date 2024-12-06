@@ -53,6 +53,7 @@ public class SpecialistService implements UserService<Specialist> {
         specialist.setBirthDate(userDetails.getBirthDate());
         specialist.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
         specialist.setDescription(userDetails.getDescription());
+        specialist.setSocialLinks(userDetails.getSocialLinks());
         specialist.setCertificationDocumentUrl(userDetails.getCertificationDocumentUrl());
         specialistRepository.save(specialist);
     }

@@ -5,6 +5,7 @@ import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.model.Specialist;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +20,9 @@ public class UserMapper {
         specialist.setEmail(userDTO.getEmail());
         specialist.setProfilePhotoUrl(userDTO.getProfilePhotoUrl());
         specialist.setBirthDate(userDTO.getBirthDate());
-
-        // Only set Specialist-specific fields if they are not null
-        if ("Specialist".equals(userDTO.getRole())) {
-            specialist.setDescription(userDTO.getDescription());
-            specialist.setCertificationDocumentUrl(userDTO.getCertificationDocumentUrl());
-        }
+        specialist.setDescription(userDTO.getDescription());
+        specialist.setSocialLinks(userDTO.getSocialLinks());
+        specialist.setCertificationDocumentUrl(userDTO.getCertificationDocumentUrl());
         return specialist;
     }
 
@@ -36,6 +34,7 @@ public class UserMapper {
         listener.setEmail(userDTO.getEmail());
         listener.setProfilePhotoUrl(userDTO.getProfilePhotoUrl());
         listener.setBirthDate(userDTO.getBirthDate());
+        listener.setDescription(userDTO.getDescription());
         return listener;
     }
 
@@ -50,6 +49,7 @@ public class UserMapper {
         userDTO.setProfilePhotoUrl(specialist.getProfilePhotoUrl());
         userDTO.setBirthDate(specialist.getBirthDate());
         userDTO.setDescription(specialist.getDescription());
+        userDTO.setSocialLinks(specialist.getSocialLinks());
         userDTO.setCertificationDocumentUrl(specialist.getCertificationDocumentUrl());
         return userDTO;
     }
@@ -64,6 +64,7 @@ public class UserMapper {
         userDTO.setLastName(listener.getLastName());
         userDTO.setProfilePhotoUrl(listener.getProfilePhotoUrl());
         userDTO.setBirthDate(listener.getBirthDate());
+        userDTO.setDescription(listener.getDescription());
         return userDTO;
     }
 
@@ -79,6 +80,3 @@ public class UserMapper {
         return userDTOList;
     }
 }
-
-
-

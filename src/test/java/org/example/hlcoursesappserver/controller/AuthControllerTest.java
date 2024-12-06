@@ -20,7 +20,7 @@ public class AuthControllerTest {
 
     @Test
     public void testRegister() throws Exception {
-        String userJson = "{\"email\": \"testuser9@example.com\", \"password\": \"password123\", \"role\": \"SPECIALIST\"}";
+        String userJson = "{\"email\": \"testuser11@example.com\", \"password\": \"password123\", \"role\": \"SPECIALIST\"}";
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

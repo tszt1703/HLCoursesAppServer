@@ -2,6 +2,7 @@ package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "listeners")
@@ -16,6 +17,7 @@ public class Listener {
     private String password;
     private LocalDate birthDate;
     private String profilePhotoUrl;
+    private String description;
 
     public Listener() {
     }
@@ -84,6 +86,15 @@ public class Listener {
         this.profilePhotoUrl = profilePhotoUrl;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
     @Override
     public String toString() {
         return "Listener{" +
@@ -94,6 +105,7 @@ public class Listener {
                 ", password='" + password + '\'' +
                 ", birthDate=" + birthDate +
                 ", profilePhotoUrl='" + profilePhotoUrl + '\'' +
+                ", description='" + description + '\''+
                 '}';
     }
 

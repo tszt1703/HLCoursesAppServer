@@ -1,7 +1,7 @@
 package org.example.hlcoursesappserver.dto;
 
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class UserDTO {
     private Long id;
@@ -9,44 +9,59 @@ public class UserDTO {
     private String role;
     private String firstName;
     private String lastName;
-    private String profilePhotoUrl;
-    private String description; // Only for Specialists
-    private String certificationDocumentUrl; // Only for Specialists
     private LocalDate birthDate;
+    private String profilePhotoUrl;
+    private String description;
+    private String socialLinks; // Only for Specialists
+    private String certificationDocumentUrl; // Only for Specialists
 
     // Default constructor
     public UserDTO() {}
 
-    // Constructor for creating UserDTO with userId, role, and email
+    // Constructor for minimal data (id, email, role)
     public UserDTO(Long id, String email, String role) {
         this.id = id;
         this.email = email;
         this.role = role;
     }
 
+    // Конструктор для минимального набора данных (id, role)
     public UserDTO(Long id, String role) {
         this.id = id;
         this.role = role;
     }
 
 
-    // Constructor for new user with more details
-    public UserDTO(Long id, String firstName, String lastName, String role,
-                   String profilePhotoUrl, String description,
-                   String certificationDocumentUrl, LocalDate birthDate) {
+    // Constructor for Specialists
+    public UserDTO(Long id, String firstName, String lastName, String email, String role,
+                   LocalDate birthDate, String profilePhotoUrl, String description,
+                   String socialLinks, String certificationDocumentUrl) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
         this.role = role;
-        this.profilePhotoUrl = profilePhotoUrl;
         this.birthDate = birthDate;
-        if ("Specialist".equals(role)) {
-            this.description = description;
-            this.certificationDocumentUrl = certificationDocumentUrl;
-        }
+        this.profilePhotoUrl = profilePhotoUrl;
+        this.description = description;
+        this.socialLinks = socialLinks;
+        this.certificationDocumentUrl = certificationDocumentUrl;
     }
 
-    // Getters and setters for all fields
+    // Constructor for Listeners
+    public UserDTO(Long id, String firstName, String lastName, String email, String role,
+                   LocalDate birthDate, String profilePhotoUrl, String description) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.role = role;
+        this.birthDate = birthDate;
+        this.profilePhotoUrl = profilePhotoUrl;
+        this.description = description;
+    }
+
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -87,6 +102,14 @@ public class UserDTO {
         this.lastName = lastName;
     }
 
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public String getProfilePhotoUrl() {
         return profilePhotoUrl;
     }
@@ -103,6 +126,14 @@ public class UserDTO {
         this.description = description;
     }
 
+    public String getSocialLinks() {
+        return socialLinks;
+    }
+
+    public void setSocialLinks(String socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
     public String getCertificationDocumentUrl() {
         return certificationDocumentUrl;
     }
@@ -111,11 +142,19 @@ public class UserDTO {
         this.certificationDocumentUrl = certificationDocumentUrl;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthDate=" + birthDate +
+                ", profilePhotoUrl='" + profilePhotoUrl + '\'' +
+                ", description='" + description + '\'' +
+                ", socialLinks='" + socialLinks + '\'' +
+                ", certificationDocumentUrl='" + certificationDocumentUrl + '\'' +
+                '}';
     }
 }

@@ -52,6 +52,7 @@ public class ListenerService implements UserService<Listener> {
         listener.setEmail(userDetails.getEmail());
         listener.setBirthDate(userDetails.getBirthDate());
         listener.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
+        listener.setDescription(userDetails.getDescription());
         listenerRepository.save(listener);
     }
 
