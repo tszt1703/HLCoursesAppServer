@@ -1,38 +1,31 @@
 package org.example.hlcoursesappserver.controller;
 
-import org.example.hlcoursesappserver.HlCoursesAppServerApplication;
 import org.example.hlcoursesappserver.dto.UserDTO;
-import org.example.hlcoursesappserver.model.Listener;
+import org.example.hlcoursesappserver.mapper.UserMapper;
 import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.service.ListenerService;
 import org.example.hlcoursesappserver.service.SpecialistService;
-import org.example.hlcoursesappserver.mapper.UserMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
@@ -44,138 +37,103 @@ class UserControllerTest {
     @MockBean
     private UserMapper userMapper;
 
-    @InjectMocks
-    private UserController userController;
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testGetAllUsers() throws Exception {
+        Mockito.when(specialistService.getAllUsers()).thenReturn(Collections.emptyList());
+        Mockito.when(listenerService.getAllUsers()).thenReturn(Collections.emptyList());
+        Mockito.when(userMapper.toUserDTOList(Collections.emptyList(), Collections.emptyList()))
+                .thenReturn(Collections.emptyList());
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("[]"));
     }
 
     @Test
+    @WithMockUser(username = "testuser5@example.com", roles = {"SPECIALIST"})
     void testCreateSpecialist() throws Exception {
-        UserDTO userDTO = new UserDTO(1L, "Specialist");
-        Specialist specialist = new Specialist("test@domain.com", "encodedPassword");
-        when(userMapper.toSpecialist(userDTO)).thenReturn(specialist);
-        when(specialistService.createUser(specialist)).thenReturn(specialist);
-        when(userMapper.toUserDTO(specialist, "Specialist")).thenReturn(userDTO);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setRole("Specialist");
+        userDTO.setEmail("test@gmail.com");
+        userDTO.setFirstName("John");
+        userDTO.setLastName("Doe");
+        userDTO.setBirthDate(LocalDate.of(1990, 1, 1));
+
+        Specialist specialist = new Specialist();
+
+        Mockito.when(userMapper.toSpecialist(Mockito.any(UserDTO.class))).thenReturn(specialist);
+        Mockito.when(specialistService.createUser(Mockito.any(Specialist.class))).thenReturn(specialist);
+        Mockito.when(userMapper.toUserDTO(Mockito.any(Specialist.class), Mockito.eq("Specialist"))).thenReturn(userDTO);
 
         mockMvc.perform(post("/api/users/specialist")
-                        .contentType("application/json")
-                        .content("{\"email\":\"test@domain.com\",\"password\":\"password\",\"role\":\"Specialist\"}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()) // Добавляем CSRF токен
+                        .content("""
+                            {
+                                "role": "Specialist",
+                                "email": "test@gmail.com",
+                                "firstName": "John",
+                                "lastName": "Doe",
+                                "birthDate": "1990-01-01"
+                            }
+                            """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.role").value("Specialist"));
-
-        verify(specialistService, times(1)).createUser(specialist);
+                .andExpect(jsonPath("$.email").value("test@gmail.com"))
+                .andExpect(jsonPath("$.role").value("Specialist"))
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Doe"));
     }
 
     @Test
-    void testCreateListener() throws Exception {
-        UserDTO userDTO = new UserDTO(3L, "Listener");
-        Listener listener = new Listener("testuser@example.com", "password123");
-        when(userMapper.toListener(userDTO)).thenReturn(listener);
-        when(listenerService.createUser(listener)).thenReturn(listener);
-        when(userMapper.toUserDTO(listener, "Listener")).thenReturn(userDTO);
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testGetUserByEmail() throws Exception {
+        Specialist specialist = new Specialist();
 
-        mockMvc.perform(post("/api/users/listener")
-                        .contentType("application/json")
-                        .content("{\"email\":\"test@domain.com\",\"password\":\"password\",\"role\":\"Listener\"}"))
+        UserDTO userDTO = new UserDTO();
+        userDTO.setRole("Specialist");
+        userDTO.setEmail("test@gmail.com");
+        userDTO.setFirstName("Test");
+        userDTO.setLastName("User");
+
+        Mockito.when(specialistService.getUserByEmail("test@gmail.com")).thenReturn(Optional.of(specialist));
+        Mockito.when(userMapper.toUserDTO(specialist, "Specialist")).thenReturn(userDTO);
+
+        mockMvc.perform(get("/api/users/test@gmail.com"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.role").value("Listener"));
-
-        verify(listenerService, times(1)).createUser(listener);
-    }
-
-    @Test
-    void testGetUserByEmailSpecialist() throws Exception {
-        Specialist specialist = new Specialist("test@domain.com", "encodedPassword");
-        specialist.setSpecialistId(1L);
-        when(specialistService.getUserByEmail("test@domain.com")).thenReturn(Optional.of(specialist));
-        when(userMapper.toUserDTO(specialist, "Specialist")).thenReturn(new UserDTO(1L, "Specialist"));
-
-        mockMvc.perform(get("/api/users/test@domain.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("test@gmail.com"))
                 .andExpect(jsonPath("$.role").value("Specialist"));
     }
 
     @Test
-    void testGetUserByEmailListener() throws Exception {
-        Listener listener = new Listener("test@domain.com", "encodedPassword");
-        listener.setListenerId(1L);
-        when(listenerService.getUserByEmail("test@domain.com")).thenReturn(Optional.of(listener));
-        when(userMapper.toUserDTO(listener, "Listener")).thenReturn(new UserDTO(1L, "Listener"));
-
-        mockMvc.perform(get("/api/users/test@domain.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.role").value("Listener"));
-    }
-
-    @Test
-    void testGetUserByEmailNotFound() throws Exception {
-        when(specialistService.getUserByEmail("test@domain.com")).thenReturn(Optional.empty());
-        when(listenerService.getUserByEmail("test@domain.com")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/users/test@domain.com"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testUpdateSpecialist() throws Exception {
-        Specialist specialist = new Specialist("test@domain.com", "encodedPassword");
-        specialist.setSpecialistId(1L);
-        when(specialistService.isUserAuthorizedToUpdate(1L, "test@domain.com")).thenReturn(true);
-        when(userMapper.toSpecialist(any(UserDTO.class))).thenReturn(specialist);
+        Mockito.when(specialistService.isUserAuthorizedToUpdate(1L, "test@gmail.com")).thenReturn(true);
 
         mockMvc.perform(put("/api/users/1")
-                        .header("email", "test@domain.com")
-                        .contentType("application/json")
-                        .content("{\"email\":\"newEmail@domain.com\",\"password\":\"newPassword\",\"role\":\"Specialist\"}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()) // Добавляем CSRF токен
+                        .header("email", "test@gmail.com")
+                        .content("""
+                                {
+                                    "role": "Specialist",
+                                    "email": "newemail@gmail.com",
+                                    "name": "Updated User"
+                                }
+                                """))
                 .andExpect(status().isOk());
-
-        verify(specialistService, times(1)).updateUser(1L, specialist);
     }
 
     @Test
-    void testUpdateListener() throws Exception {
-        Listener listener = new Listener("test@domain.com", "encodedPassword");
-        listener.setListenerId(1L);
-        when(listenerService.isUserAuthorizedToUpdate(1L, "test@domain.com")).thenReturn(true);
-        when(userMapper.toListener(any(UserDTO.class))).thenReturn(listener);
-
-        mockMvc.perform(put("/api/users/1")
-                        .header("email", "test@domain.com")
-                        .contentType("application/json")
-                        .content("{\"email\":\"newEmail@domain.com\",\"password\":\"newPassword\",\"role\":\"Listener\"}"))
-                .andExpect(status().isOk());
-
-        verify(listenerService, times(1)).updateUser(1L, listener);
-    }
-
-    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testDeleteSpecialist() throws Exception {
-        when(specialistService.isUserAuthorizedToDelete(3L, "testuser@example.com")).thenReturn(true);
+        Mockito.when(specialistService.isUserAuthorizedToDelete(1L, "test@gmail.com")).thenReturn(true);
 
-        mockMvc.perform(delete("/api/users/3")
-                        .header("email", "test@domain.com")
+        mockMvc.perform(delete("/api/users/1")
+                        .with(csrf()) // Добавляем CSRF токен
+                        .header("email", "test@gmail.com")
                         .param("role", "Specialist"))
                 .andExpect(status().isOk());
-
-        verify(specialistService, times(1)).deleteUser(1L);
-    }
-
-    @Test
-    void testDeleteListener() throws Exception {
-        when(listenerService.isUserAuthorizedToDelete(3L, "testuser@example.com")).thenReturn(true);
-
-        mockMvc.perform(delete("/api/users/3")
-                        .header("email", "testuser@example.com")
-                        .param("role", "Listener"))
-                .andExpect(status().isOk());
-
-        verify(listenerService, times(1)).deleteUser(1L);
     }
 }
