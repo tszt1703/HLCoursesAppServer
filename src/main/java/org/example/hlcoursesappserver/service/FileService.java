@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Service
 public class FileService {
@@ -20,6 +21,7 @@ public class FileService {
     private final Drive driveService;
     private final SpecialistRepository specialistRepository;
     private final ListenerRepository listenerRepository;
+    private static final String PROFILE_PHOTOS_FOLDER_ID = "1fTKb6ARwNhdNVN0fVyXcPsKH4rCdRgdl";
 
     @Autowired
     public FileService(SpecialistRepository specialistRepository,
@@ -31,7 +33,8 @@ public class FileService {
 
     public String uploadProfilePhoto(MultipartFile file, Long userId, String role) throws IOException {
         File fileMetadata = new File();
-        fileMetadata.setName("HLCoursesAppFiles/ProfilePhotos/" + file.getOriginalFilename());
+        fileMetadata.setName(file.getOriginalFilename());
+        fileMetadata.setParents(Collections.singletonList(PROFILE_PHOTOS_FOLDER_ID)); // Указываем ID папки
 
         java.io.File tempFile = java.io.File.createTempFile("upload-", file.getOriginalFilename());
         file.transferTo(tempFile);
@@ -75,3 +78,5 @@ public class FileService {
         }
     }
 }
+
+
