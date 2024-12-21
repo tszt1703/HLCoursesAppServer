@@ -47,16 +47,37 @@ public class SpecialistService implements UserService<Specialist> {
     public void updateUser(Long id, Specialist userDetails) {
         Specialist specialist = specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
-        specialist.setFirstName(userDetails.getFirstName());
-        specialist.setLastName(userDetails.getLastName());
-        specialist.setEmail(userDetails.getEmail());
-        specialist.setBirthDate(userDetails.getBirthDate());
-        specialist.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
-        specialist.setDescription(userDetails.getDescription());
-        specialist.setSocialLinks(userDetails.getSocialLinks());
-        specialist.setCertificationDocumentUrl(userDetails.getCertificationDocumentUrl());
+
+        // Обновляем только те поля, которые не равны null
+        if (userDetails.getFirstName() != null) {
+            specialist.setFirstName(userDetails.getFirstName());
+        }
+        if (userDetails.getLastName() != null) {
+            specialist.setLastName(userDetails.getLastName());
+        }
+        if (userDetails.getEmail() != null) {
+            specialist.setEmail(userDetails.getEmail());
+        }
+        if (userDetails.getBirthDate() != null) {
+            specialist.setBirthDate(userDetails.getBirthDate());
+        }
+        if (userDetails.getProfilePhotoUrl() != null) {
+            specialist.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
+        }
+        if (userDetails.getDescription() != null) {
+            specialist.setDescription(userDetails.getDescription());
+        }
+        if (userDetails.getSocialLinks() != null) {
+            specialist.setSocialLinks(userDetails.getSocialLinks());
+        }
+        if (userDetails.getCertificationDocumentUrl() != null) {
+            specialist.setCertificationDocumentUrl(userDetails.getCertificationDocumentUrl());
+        }
+
+        // Сохраняем обновлённые данные
         specialistRepository.save(specialist);
     }
+
 
     @Override
     public void deleteUser(Long id) {

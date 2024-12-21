@@ -47,14 +47,31 @@ public class ListenerService implements UserService<Listener> {
     public void updateUser(Long id, Listener userDetails) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
-        listener.setFirstName(userDetails.getFirstName());
-        listener.setLastName(userDetails.getLastName());
-        listener.setEmail(userDetails.getEmail());
-        listener.setBirthDate(userDetails.getBirthDate());
-        listener.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
-        listener.setDescription(userDetails.getDescription());
+
+        // Обновляем только те поля, которые не равны null
+        if (userDetails.getFirstName() != null) {
+            listener.setFirstName(userDetails.getFirstName());
+        }
+        if (userDetails.getLastName() != null) {
+            listener.setLastName(userDetails.getLastName());
+        }
+        if (userDetails.getEmail() != null) {
+            listener.setEmail(userDetails.getEmail());
+        }
+        if (userDetails.getBirthDate() != null) {
+            listener.setBirthDate(userDetails.getBirthDate());
+        }
+        if (userDetails.getProfilePhotoUrl() != null) {
+            listener.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
+        }
+        if (userDetails.getDescription() != null) {
+            listener.setDescription(userDetails.getDescription());
+        }
+
+        // Сохраняем обновлённые данные
         listenerRepository.save(listener);
     }
+
 
     @Override
     public void deleteUser(Long id) {
