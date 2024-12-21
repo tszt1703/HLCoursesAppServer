@@ -37,19 +37,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            email = jwtUtil.extractUsername(jwt); // Извлекаем email из токена
+            email = jwtUtil.extractUsername(jwt); // Извлекаем email
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
 
-            if (jwtUtil.validateToken(jwt, userDetails)) { // Проверяем валидность токена
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                String role = jwtUtil.extractRole(jwt); // Извлекаем роль
+                Long userId = jwtUtil.extractUserId(jwt); // Извлекаем id
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // Добавление роли и ID пользователя в контекст, если нужно
+                request.setAttribute("userId", userId);
+                request.setAttribute("role", role);
+
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         chain.doFilter(request, response);
     }
+
 }

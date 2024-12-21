@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final RegistrationService registrationService;
-
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
@@ -37,11 +36,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         CustomAuthentication authentication = authService.authenticateUser(request);
+
         if (authentication != null) {
-            String token = jwtUtil.generateToken(authentication.getUserId().toString(), authentication.getRole());
+            // Используем обновленный метод генерации токена
+            String token = jwtUtil.generateToken(authentication.getUserId(), authentication.getEmail(), authentication.getRole());
             return ResponseEntity.ok(new LoginResponse(authentication.getUserId(), authentication.getRole(), token));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неправильный email или пароль.");
         }
     }
 }
+

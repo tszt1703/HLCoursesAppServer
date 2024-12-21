@@ -2,14 +2,12 @@ package org.example.hlcoursesappserver.dto;
 
 public class CustomAuthentication {
     private final Long userId;
-    private String role;
+    private final String email;
+    private final String role;
 
-    public CustomAuthentication(Long userId) {
+    public CustomAuthentication(Long userId, String email, String role) {
         this.userId = userId;
-    }
-
-    public CustomAuthentication(Long userId, String role) {
-        this.userId = userId;
+        this.email = email;
         this.role = role;
     }
 
@@ -17,11 +15,11 @@ public class CustomAuthentication {
         return userId;
     }
 
-    public String getRole() {
-        return role;
+    public String getEmail() {
+        return email;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public String getRole() {
+        return role;
     }
 }

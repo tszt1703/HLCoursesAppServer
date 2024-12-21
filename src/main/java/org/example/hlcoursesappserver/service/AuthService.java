@@ -15,9 +15,7 @@ import java.util.Optional;
 public class AuthService {
 
     private final ListenerRepository listenerRepository;
-
     private final SpecialistRepository specialistRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public AuthService(ListenerRepository listenerRepository, SpecialistRepository specialistRepository, PasswordEncoder passwordEncoder) {
@@ -27,20 +25,22 @@ public class AuthService {
     }
 
     public CustomAuthentication authenticateUser(LoginRequest request) {
-        // Ищем пользователя среди слушателей
+        // Проверяем среди слушателей
         Optional<Listener> listenerOpt = listenerRepository.findByEmail(request.getEmail());
         if (listenerOpt.isPresent() && passwordEncoder.matches(request.getPassword(), listenerOpt.get().getPassword())) {
-            return new CustomAuthentication(listenerOpt.get().getListenerId(), "Listener");
+            Listener listener = listenerOpt.get();
+            return new CustomAuthentication(listener.getListenerId(), listener.getEmail(), "Listener");
         }
 
-        // Ищем пользователя среди специалистов
+        // Проверяем среди специалистов
         Optional<Specialist> specialistOpt = specialistRepository.findByEmail(request.getEmail());
         if (specialistOpt.isPresent() && passwordEncoder.matches(request.getPassword(), specialistOpt.get().getPassword())) {
-            return new CustomAuthentication(specialistOpt.get().getSpecialistId(), "Specialist");
+            Specialist specialist = specialistOpt.get();
+            return new CustomAuthentication(specialist.getSpecialistId(), specialist.getEmail(), "Specialist");
         }
 
         // Если пользователь не найден
         return null;
     }
-
 }
+
