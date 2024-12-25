@@ -2,10 +2,12 @@ package org.example.hlcoursesappserver.service;
 
 import org.example.hlcoursesappserver.dto.CustomAuthentication;
 import org.example.hlcoursesappserver.dto.LoginRequest;
+import org.example.hlcoursesappserver.exception.InvalidTokenException;
 import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.repository.ListenerRepository;
 import org.example.hlcoursesappserver.repository.SpecialistRepository;
+import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,14 @@ public class AuthService {
     private final ListenerRepository listenerRepository;
     private final SpecialistRepository specialistRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(ListenerRepository listenerRepository, SpecialistRepository specialistRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(ListenerRepository listenerRepository, SpecialistRepository specialistRepository,
+                       PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.listenerRepository = listenerRepository;
         this.specialistRepository = specialistRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     public CustomAuthentication authenticateUser(LoginRequest request) {
@@ -39,8 +44,18 @@ public class AuthService {
             return new CustomAuthentication(specialist.getSpecialistId(), specialist.getEmail(), "Specialist");
         }
 
-        // Если пользователь не найден
-        return null;
+        // Если пользователь не найден или неверный пароль
+        throw new IllegalArgumentException("Неверный email или пароль");
+    }
+
+    public String refreshToken(String refreshToken) {
+        if (jwtUtil.validateRefreshToken(refreshToken)) {
+            String email = jwtUtil.extractUsername(refreshToken);
+            String role = jwtUtil.extractRole(refreshToken);
+            Long userId = jwtUtil.extractUserId(refreshToken);
+
+            return jwtUtil.generateAccessToken(userId, email, role);
+        }
+        throw new InvalidTokenException("Недействительный refresh token");
     }
 }
-

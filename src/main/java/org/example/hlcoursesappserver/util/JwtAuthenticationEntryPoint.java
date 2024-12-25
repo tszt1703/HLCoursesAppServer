@@ -12,11 +12,12 @@ import java.io.IOException;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        // Отправка ошибки 401 при ошибке аутентификации
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Authentication token is either missing or invalid.");
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        String jwtError = (String) request.getAttribute("jwtError");
+        String errorMessage = jwtError != null ? "Invalid token: " + jwtError : "Unauthorized: Token is missing or invalid.";
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, errorMessage);
     }
+
+
 }
 

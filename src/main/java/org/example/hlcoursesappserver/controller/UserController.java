@@ -72,6 +72,11 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UserDTO userDTO,
             @RequestHeader("email") String email) {
+
+        if (userDTO.getRole() == null || userDTO.getRole().isEmpty()) {
+            return ResponseEntity.badRequest().body("Ошибка: Роль пользователя не указана.");
+        }
+
         if (userDTO.getRole().equals("Specialist")) {
             if (!specialistService.isUserAuthorizedToUpdate(id, email)) {
                 return ResponseEntity.status(403).build();
@@ -87,8 +92,9 @@ public class UserController {
             listenerService.updateUser(id, updatedListener);
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.badRequest().body("Ошибка: Неверная роль пользователя.");
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(

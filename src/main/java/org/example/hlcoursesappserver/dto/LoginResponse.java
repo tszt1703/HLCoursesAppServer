@@ -4,15 +4,17 @@ package org.example.hlcoursesappserver.dto;
 public class LoginResponse {
     private Long userId;
     private String role;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(Long userId, String role, String token) {
+    public LoginResponse(Long userId, String role, String accessToken, String refreshToken) {
         this.userId = userId;
         this.role = role;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 
     // Getters
@@ -25,8 +27,12 @@ public class LoginResponse {
         return role;
     }
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
     // Setters
@@ -39,8 +45,12 @@ public class LoginResponse {
         this.role = role;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override
@@ -48,7 +58,8 @@ public class LoginResponse {
         return "LoginResponse{" +
                 "userId=" + userId +
                 ", role='" + role + '\'' +
-                ", token='" + token + '\'' +
+                ", accessToken='" + accessToken + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
                 '}';
     }
 }
