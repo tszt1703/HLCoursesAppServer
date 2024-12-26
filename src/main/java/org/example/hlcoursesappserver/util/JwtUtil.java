@@ -77,11 +77,13 @@ public class JwtUtil {
     }
 
     // Генерация refresh токена
-    public String generateRefreshToken(Long userId, String email) {
+    public String generateRefreshToken(Long userId, String email, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("role", role); // Добавление роли
         return createToken(claims, email, refreshExpirationMs);
     }
+
 
     private String createToken(Map<String, Object> claims, String subject, long expiration) {
         return Jwts.builder()

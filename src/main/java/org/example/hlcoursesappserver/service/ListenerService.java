@@ -126,7 +126,7 @@ public class ListenerService implements UserService<Listener> {
 
         // Генерация новых токенов с правильной ролью
         String accessToken = jwtUtil.generateAccessToken(listener.getListenerId(), newEmail, "Listener");
-        String refreshToken = jwtUtil.generateRefreshToken(listener.getListenerId(), newEmail);
+        String refreshToken = jwtUtil.generateRefreshToken(listener.getListenerId(), newEmail, "Listener");
 
         // Возвращаем токены для контроллера
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);

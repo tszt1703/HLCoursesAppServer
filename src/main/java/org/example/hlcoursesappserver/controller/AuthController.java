@@ -42,7 +42,7 @@ public class AuthController {
             CustomAuthentication authentication = authService.authenticateUser(request);
 
             String accessToken = jwtUtil.generateAccessToken(authentication.getUserId(), authentication.getEmail(), authentication.getRole());
-            String refreshToken = jwtUtil.generateRefreshToken(authentication.getUserId(), authentication.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(authentication.getUserId(), authentication.getEmail(), authentication.getRole());
 
             return ResponseEntity.ok(new LoginResponse(authentication.getUserId(), authentication.getRole(), accessToken, refreshToken));
         } catch (IllegalArgumentException e) {

@@ -46,7 +46,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/auth/register", "/auth/login").permitAll() // Открытые эндпоинты для регистрации и логина
+                .requestMatchers("/auth/register", "/auth/login","/auth/refresh").permitAll() // Открытые эндпоинты для регистрации и логина
                 .requestMatchers(HttpMethod.GET, "/public/**").permitAll() // Пример публичных эндпоинтов
                 .anyRequest().authenticated() // Остальные запросы требуют аутентификации
                 .and()

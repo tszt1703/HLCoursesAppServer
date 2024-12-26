@@ -127,7 +127,7 @@ public class SpecialistService implements UserService<Specialist> {
 
         // Генерация новых токенов
         String accessToken = jwtUtil.generateAccessToken(specialist.getSpecialistId(), newEmail, "Specialist");
-        String refreshToken = jwtUtil.generateRefreshToken(specialist.getSpecialistId(), newEmail);
+        String refreshToken = jwtUtil.generateRefreshToken(specialist.getSpecialistId(), newEmail, "Specialist");
 
         // Возвращаем токены для контроллера
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
