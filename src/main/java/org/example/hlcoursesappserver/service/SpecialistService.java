@@ -2,23 +2,26 @@ package org.example.hlcoursesappserver.service;
 
 import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.repository.SpecialistRepository;
+import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class SpecialistService implements UserService<Specialist> {
 
     private final SpecialistRepository specialistRepository;
-
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public SpecialistService(SpecialistRepository specialistRepository) {
+    public SpecialistService(SpecialistRepository specialistRepository, JwtUtil jwtUtil) {
         this.specialistRepository = specialistRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -48,15 +51,11 @@ public class SpecialistService implements UserService<Specialist> {
         Specialist specialist = specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
 
-        // Обновляем только те поля, которые не равны null
         if (userDetails.getFirstName() != null) {
             specialist.setFirstName(userDetails.getFirstName());
         }
         if (userDetails.getLastName() != null) {
             specialist.setLastName(userDetails.getLastName());
-        }
-        if (userDetails.getEmail() != null) {
-            specialist.setEmail(userDetails.getEmail());
         }
         if (userDetails.getBirthDate() != null) {
             specialist.setBirthDate(userDetails.getBirthDate());
@@ -74,10 +73,8 @@ public class SpecialistService implements UserService<Specialist> {
             specialist.setCertificationDocumentUrl(userDetails.getCertificationDocumentUrl());
         }
 
-        // Сохраняем обновлённые данные
         specialistRepository.save(specialist);
     }
-
 
     @Override
     public void deleteUser(Long id) {
@@ -98,4 +95,42 @@ public class SpecialistService implements UserService<Specialist> {
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
         return specialist.getEmail().equals(email);
     }
+
+    @Override
+    public void updatePassword(Long id, String oldPassword, String newPassword) {
+        Specialist specialist = specialistRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Specialist not found"));
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+
+        if (!passwordEncoder.matches(oldPassword, specialist.getPassword())) {
+            throw new IllegalArgumentException("Incorrect old password");
+        }
+
+        specialist.setPassword(passwordEncoder.encode(newPassword));
+        specialistRepository.save(specialist);
+    }
+
+    @Override
+    public Map<String, String> updateEmail(Long id, String newEmail) {
+        Specialist specialist = specialistRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Specialist not found"));
+
+        if (specialistRepository.findByEmail(newEmail).isPresent()) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        specialist.setEmail(newEmail);
+        specialistRepository.save(specialist);
+
+        // Генерация новых токенов
+        String accessToken = jwtUtil.generateAccessToken(specialist.getSpecialistId(), newEmail, "Specialist");
+        String refreshToken = jwtUtil.generateRefreshToken(specialist.getSpecialistId(), newEmail);
+
+        // Возвращаем токены для контроллера
+        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+    }
+
 }

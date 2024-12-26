@@ -1,6 +1,7 @@
 package org.example.hlcoursesappserver.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService<T> {
@@ -12,5 +13,10 @@ public interface UserService<T> {
     void deleteUser(Long id);
     boolean isUserAuthorizedToUpdate(Long id, String email);
     boolean isUserAuthorizedToDelete(Long id, String email);
-}
 
+    // Новый метод для изменения пароля
+    void updatePassword(Long id, String oldPassword, String newPassword);
+
+    // Новый метод для изменения почты
+    Map<String, String> updateEmail(Long id, String newEmail);
+}

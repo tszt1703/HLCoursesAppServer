@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -93,6 +94,68 @@ public class UserController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().body("Ошибка: Неверная роль пользователя.");
+    }
+
+    // Метод для обновления email
+    @PutMapping("/{id}/email")
+    public ResponseEntity<?> updateEmail(
+            @PathVariable Long id,
+            @RequestBody String newEmail,
+            @RequestHeader("email") String currentEmail,
+            @RequestParam String role) {
+
+        if (role.equals("Specialist")) {
+            if (!specialistService.isUserAuthorizedToUpdate(id, currentEmail)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            Map<String, String> tokens = specialistService.updateEmail(id, newEmail);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Email успешно обновлен.",
+                    "accessToken", tokens.get("accessToken"),
+                    "refreshToken", tokens.get("refreshToken")
+            ));
+        } else if (role.equals("Listener")) {
+            if (!listenerService.isUserAuthorizedToUpdate(id, currentEmail)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            Map<String, String> tokens = listenerService.updateEmail(id, newEmail);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Email успешно обновлен.",
+                    "accessToken", tokens.get("accessToken"),
+                    "refreshToken", tokens.get("refreshToken")
+            ));
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> updatePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> passwords, // Передаём оба пароля через JSON
+            @RequestHeader("email") String currentEmail,
+            @RequestParam String role) {
+
+        String oldPassword = passwords.get("oldPassword");
+        String newPassword = passwords.get("newPassword");
+
+        if (role.equals("Specialist")) {
+            if (!specialistService.isUserAuthorizedToUpdate(id, currentEmail)) {
+                return ResponseEntity.status(403).build();
+            }
+            specialistService.updatePassword(id, oldPassword, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Пароль успешно обновлен."));
+        } else if (role.equals("Listener")) {
+            if (!listenerService.isUserAuthorizedToUpdate(id, currentEmail)) {
+                return ResponseEntity.status(403).build();
+            }
+            listenerService.updatePassword(id, oldPassword, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Пароль успешно обновлен."));
+        }
+        return ResponseEntity.badRequest().build();
     }
 
 

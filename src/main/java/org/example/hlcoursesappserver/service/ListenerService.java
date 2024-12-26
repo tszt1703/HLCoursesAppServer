@@ -1,12 +1,15 @@
 package org.example.hlcoursesappserver.service;
 
 import org.example.hlcoursesappserver.model.Listener;
+import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.repository.ListenerRepository;
+import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -15,10 +18,12 @@ public class ListenerService implements UserService<Listener> {
     private final ListenerRepository listenerRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public ListenerService(ListenerRepository listenerRepository) {
+    public ListenerService(ListenerRepository listenerRepository, JwtUtil jwtUtil) {
         this.listenerRepository = listenerRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -55,9 +60,6 @@ public class ListenerService implements UserService<Listener> {
         if (userDetails.getLastName() != null) {
             listener.setLastName(userDetails.getLastName());
         }
-        if (userDetails.getEmail() != null) {
-            listener.setEmail(userDetails.getEmail());
-        }
         if (userDetails.getBirthDate() != null) {
             listener.setBirthDate(userDetails.getBirthDate());
         }
@@ -92,6 +94,44 @@ public class ListenerService implements UserService<Listener> {
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
         return listener.getEmail().equals(email);
     }
+
+    @Override
+    public void updatePassword(Long id, String oldPassword, String newPassword) {
+        Listener listener = listenerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listener not found"));
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+
+        if (!passwordEncoder.matches(oldPassword, listener.getPassword())) {
+            throw new IllegalArgumentException("Incorrect old password");
+        }
+
+        listener.setPassword(passwordEncoder.encode(newPassword));
+        listenerRepository.save(listener);
+    }
+
+    @Override
+    public Map<String, String> updateEmail(Long id, String newEmail) {
+        Listener listener = listenerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listener not found"));
+
+        if (listenerRepository.findByEmail(newEmail).isPresent()) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        listener.setEmail(newEmail);
+        listenerRepository.save(listener);
+
+        // Генерация новых токенов с правильной ролью
+        String accessToken = jwtUtil.generateAccessToken(listener.getListenerId(), newEmail, "Listener");
+        String refreshToken = jwtUtil.generateRefreshToken(listener.getListenerId(), newEmail);
+
+        // Возвращаем токены для контроллера
+        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+    }
+
 
 
 }
