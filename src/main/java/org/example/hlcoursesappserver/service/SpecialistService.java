@@ -132,5 +132,4 @@ public class SpecialistService implements UserService<Specialist> {
         // Возвращаем токены для контроллера
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
     }
-
 }
