@@ -6,6 +6,8 @@ import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.service.ListenerService;
 import org.example.hlcoursesappserver.service.SpecialistService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final SpecialistService specialistService;
     private final ListenerService listenerService;
@@ -73,28 +77,54 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody UserDTO userDTO,
             @RequestHeader("email") String email) {
+        // Логирование входящих данных
+        logger.info("Получен запрос на обновление пользователя с ID: {}. Данные: {}", id, userDTO);
 
+        // Проверка наличия роли
         if (userDTO.getRole() == null || userDTO.getRole().isEmpty()) {
+            logger.warn("Роль пользователя не указана для ID: {}", id);
             return ResponseEntity.badRequest().body("Ошибка: Роль пользователя не указана.");
         }
 
+        // Обработка обновления специалиста
         if (userDTO.getRole().equals("Specialist")) {
             if (!specialistService.isUserAuthorizedToUpdate(id, email)) {
-                return ResponseEntity.status(403).build();
+                logger.warn("Попытка обновления специалиста без авторизации. ID: {}, email: {}", id, email);
+                return ResponseEntity.status(403).body("У вас нет прав на обновление этого пользователя.");
             }
-            Specialist updatedSpecialist = userMapper.toSpecialist(userDTO);
-            specialistService.updateUser(id, updatedSpecialist);
-            return ResponseEntity.ok().build();
-        } else if (userDTO.getRole().equals("Listener")) {
-            if (!listenerService.isUserAuthorizedToUpdate(id, email)) {
-                return ResponseEntity.status(403).build();
+            try {
+                Specialist updatedSpecialist = userMapper.toSpecialist(userDTO);
+                specialistService.updateUser(id, updatedSpecialist);
+                logger.info("Специалист с ID: {} успешно обновлён.", id);
+                return ResponseEntity.ok("Специалист успешно обновлён.");
+            } catch (Exception e) {
+                logger.error("Ошибка при обновлении специалиста с ID: {}. Ошибка: {}", id, e.getMessage());
+                return ResponseEntity.status(500).body("Ошибка при обновлении специалиста.");
             }
-            Listener updatedListener = userMapper.toListener(userDTO);
-            listenerService.updateUser(id, updatedListener);
-            return ResponseEntity.ok().build();
         }
+
+        // Обработка обновления слушателя
+        else if (userDTO.getRole().equals("Listener")) {
+            if (!listenerService.isUserAuthorizedToUpdate(id, email)) {
+                logger.warn("Попытка обновления слушателя без авторизации. ID: {}, email: {}", id, email);
+                return ResponseEntity.status(403).body("У вас нет прав на обновление этого пользователя.");
+            }
+            try {
+                Listener updatedListener = userMapper.toListener(userDTO);
+                listenerService.updateUser(id, updatedListener);
+                logger.info("Слушатель с ID: {} успешно обновлён.", id);
+                return ResponseEntity.ok("Слушатель успешно обновлён.");
+            } catch (Exception e) {
+                logger.error("Ошибка при обновлении слушателя с ID: {}. Ошибка: {}", id, e.getMessage());
+                return ResponseEntity.status(500).body("Ошибка при обновлении слушателя.");
+            }
+        }
+
+        // Если роль не распознана
+        logger.warn("Попытка обновления пользователя с некорректной ролью. ID: {}, роль: {}", id, userDTO.getRole());
         return ResponseEntity.badRequest().body("Ошибка: Неверная роль пользователя.");
     }
+
 
     // Метод для обновления email
     @PutMapping("/{id}/email")

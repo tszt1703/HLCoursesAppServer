@@ -59,7 +59,10 @@ public class SpecialistService implements UserService<Specialist> {
         }
         if (userDetails.getBirthDate() != null) {
             specialist.setBirthDate(userDetails.getBirthDate());
+        } else {
+            specialist.setBirthDate(null); // Явное обнуление даты
         }
+
         if (userDetails.getProfilePhotoUrl() != null) {
             specialist.setProfilePhotoUrl(userDetails.getProfilePhotoUrl());
         }
