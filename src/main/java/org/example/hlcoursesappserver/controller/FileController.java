@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/files")
@@ -38,9 +39,12 @@ public class FileController {
             @RequestParam("role") String role) {
         try {
             String fileUrl = fileService.getProfilePhotoUrl(userId, role);
-            return ResponseEntity.ok().body(fileUrl);
+            Map<String, String> response = Map.of("fileUrl", fileUrl);
+            return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body("Фото профиля не найдено: " + e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Фото профиля не найдено: " + e.getMessage());
+            return ResponseEntity.status(404).body(errorResponse);
         }
     }
+
 }

@@ -32,21 +32,42 @@ public class FileService {
     }
 
     public String uploadProfilePhoto(MultipartFile file, Long userId, String role) throws IOException {
+        // Получаем email пользователя
+        String email;
+        if ("Specialist".equalsIgnoreCase(role)) {
+            Specialist specialist = specialistRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Специалист с ID " + userId + " не найден"));
+            email = specialist.getEmail();
+        } else if ("Listener".equalsIgnoreCase(role)) {
+            Listener listener = listenerRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Слушатель с ID " + userId + " не найден"));
+            email = listener.getEmail();
+        } else {
+            throw new IllegalArgumentException("Неизвестная роль: " + role);
+        }
+
+        // Создаем уникальное имя файла с email пользователя
+        String fileName = email.replaceAll("[^a-zA-Z0-9]", "_") + "_" + file.getOriginalFilename();
+
+        // Метаданные файла
         File fileMetadata = new File();
-        fileMetadata.setName(file.getOriginalFilename());
+        fileMetadata.setName(fileName);
         fileMetadata.setParents(Collections.singletonList(PROFILE_PHOTOS_FOLDER_ID)); // Указываем ID папки
 
+        // Создаём временный файл для загрузки
         java.io.File tempFile = java.io.File.createTempFile("upload-", file.getOriginalFilename());
         file.transferTo(tempFile);
 
         FileContent mediaContent = new FileContent(file.getContentType(), tempFile);
 
+        // Загружаем файл на Google Drive
         File uploadedFile = driveService.files().create(fileMetadata, mediaContent)
                 .setFields("id, webViewLink")
                 .execute();
 
         String fileUrl = uploadedFile.getWebViewLink();
 
+        // Сохраняем URL файла в БД
         if ("Specialist".equalsIgnoreCase(role)) {
             Specialist specialist = specialistRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Специалист с ID " + userId + " не найден"));
@@ -57,12 +78,16 @@ public class FileService {
                     .orElseThrow(() -> new IllegalArgumentException("Слушатель с ID " + userId + " не найден"));
             listener.setProfilePhotoUrl(fileUrl);
             listenerRepository.save(listener);
-        } else {
-            throw new IllegalArgumentException("Неизвестная роль: " + role);
+        }
+
+        // Удаляем временный файл
+        if (tempFile.exists()) {
+            tempFile.delete();
         }
 
         return fileUrl;
     }
+
 
     public String getProfilePhotoUrl(Long userId, String role) {
         if ("Specialist".equalsIgnoreCase(role)) {
