@@ -1,96 +1,127 @@
--- Создание таблиц
-CREATE TABLE Specialists (
-                             specialist_id SERIAL PRIMARY KEY,
-                             first_name VARCHAR(100) NOT NULL,
-                             last_name VARCHAR(100) NOT NULL,
-                             email VARCHAR(100) UNIQUE NOT NULL,
-                             password VARCHAR(100) NOT NULL,
-                             birth_date DATE,
-                             profile_photo_url TEXT,  -- ссылка на фото профиля
-                             description TEXT,
-                             social_links TEXT,
-                             certification_document_url TEXT,  -- документы, подтверждающие образование
-                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE Listeners (
-                           listener_id SERIAL PRIMARY KEY,
-                           first_name VARCHAR(100) NOT NULL,
-                           last_name VARCHAR(100) NOT NULL,
-                           email VARCHAR(100) UNIQUE NOT NULL,
-                           password VARCHAR(100) NOT NULL,
-                           birth_date DATE,
-                           profile_photo_url TEXT,  -- ссылка на фото профиля
-                           description TEXT,
-                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE Course_Categories (
+-- Таблица для категорий курсов
+CREATE TABLE course_categories (
                                    category_id SERIAL PRIMARY KEY,
-                                   category_name VARCHAR(100) NOT NULL
+                                   category_name VARCHAR NOT NULL
 );
 
-CREATE TABLE Courses (
+-- Таблица для курсов
+CREATE TABLE courses (
                          course_id SERIAL PRIMARY KEY,
-                         specialist_id INT REFERENCES Specialists(specialist_id) ON DELETE CASCADE, -- связь со специалистом
-                         category_id INT REFERENCES Course_Categories(category_id),
-                         title VARCHAR(200) NOT NULL,
-                         description TEXT,
-                         difficulty_level VARCHAR(50),
-                         age_group VARCHAR(50),
+                         specialist_id INT NOT NULL,
+                         category_id INT REFERENCES course_categories(category_id) ON DELETE SET NULL,
+                         title VARCHAR NOT NULL,
+                         short_description TEXT NOT NULL,
+                         full_description TEXT NOT NULL,
+                         difficulty_level VARCHAR NOT NULL,
+                         age_group VARCHAR,
                          duration_days INT,
-                         plan TEXT, -- план проведения курса
-                         photo_url TEXT,  -- ссылка на изображение курса
-                         video_url TEXT,  -- ссылка на видео-материал курса
-                         certificate_available BOOLEAN DEFAULT FALSE,
+                         photo_url VARCHAR,
+                         status VARCHAR DEFAULT 'draft', -- Статус: draft, published, archived
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Lessons (
+-- Таблица для модулей курсов
+CREATE TABLE course_modules (
+                                module_id SERIAL PRIMARY KEY,
+                                course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+                                title VARCHAR NOT NULL,
+                                description TEXT,
+                                position INT DEFAULT 0, -- Порядок модулей
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица для уроков
+CREATE TABLE lessons (
                          lesson_id SERIAL PRIMARY KEY,
-                         course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE, -- связь с курсом
-                         title VARCHAR(200) NOT NULL,
-                         content TEXT, -- теоретический материал
-                         photo_url TEXT,  -- ссылка на изображение урока
-                         video_url TEXT,  -- ссылка на видео-материал урока
-                         order_num INT, -- порядок уроков в курсе
+                         module_id INT REFERENCES course_modules(module_id) ON DELETE CASCADE,
+                         title VARCHAR NOT NULL,
+                         content TEXT,
+                         photo_url VARCHAR,
+                         video_url VARCHAR,
+                         position INT DEFAULT 0, -- Порядок уроков в модуле
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Tests (
+-- Таблица для тестов
+CREATE TABLE tests (
                        test_id SERIAL PRIMARY KEY,
-                       lesson_id INT REFERENCES Lessons(lesson_id) ON DELETE CASCADE, -- связь с уроком
-                       title VARCHAR(200) NOT NULL,
-                       question TEXT,
-                       correct_answer TEXT,
+                       lesson_id INT REFERENCES lessons(lesson_id) ON DELETE CASCADE,
+                       title VARCHAR NOT NULL,
+                       status VARCHAR DEFAULT 'pending', -- Статус: pending, approved, rejected
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Messages (
-                          message_id SERIAL PRIMARY KEY,
-                          sender_id INT, -- отправитель (может быть специалист или слушатель)
-                          receiver_id INT, -- получатель (может быть специалист или слушатель)
-                          sender_role VARCHAR(20) CHECK (sender_role IN ('specialist', 'listener')), -- роль отправителя
-                          receiver_role VARCHAR(20) CHECK (receiver_role IN ('specialist', 'listener')), -- роль получателя
-                          message_text TEXT NOT NULL,
-                          sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Таблица для вопросов тестов
+CREATE TABLE questions (
+                           question_id SERIAL PRIMARY KEY,
+                           test_id INT REFERENCES tests(test_id) ON DELETE CASCADE,
+                           question_text TEXT NOT NULL
 );
 
-CREATE TABLE Reviews (
+-- Таблица для ответов на вопросы
+CREATE TABLE answers (
+                         answer_id SERIAL PRIMARY KEY,
+                         question_id INT REFERENCES questions(question_id) ON DELETE CASCADE,
+                         answer_text TEXT NOT NULL,
+                         is_correct BOOLEAN DEFAULT FALSE
+);
+
+-- Таблица для отслеживания прогресса пользователей
+CREATE TABLE progress_stats (
+                                progress_id SERIAL PRIMARY KEY,
+                                listener_id INT NOT NULL,
+                                course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+                                lessons_completed INT DEFAULT 0,
+                                tests_passed INT DEFAULT 0,
+                                progress_percent FLOAT DEFAULT 0,
+                                last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица для отзывов
+CREATE TABLE reviews (
                          review_id SERIAL PRIMARY KEY,
-                         listener_id INT REFERENCES Listeners(listener_id) ON DELETE CASCADE, -- слушатель
-                         course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE, -- курс
+                         listener_id INT NOT NULL,
+                         course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
                          rating INT CHECK (rating >= 1 AND rating <= 5),
                          review_text TEXT,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Progress_Stats (
-                                progress_id SERIAL PRIMARY KEY,
-                                listener_id INT REFERENCES Listeners(listener_id) ON DELETE CASCADE, -- слушатель
-                                course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE, -- курс
-                                lessons_completed INT DEFAULT 0,
-                                tests_passed INT DEFAULT 0,
-                                progress_percent DECIMAL(5,2) DEFAULT 0.00,
-                                last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Таблица для сообщений (чат между специалистами и слушателями)
+CREATE TABLE messages (
+                          message_id SERIAL PRIMARY KEY,
+                          sender_id INT NOT NULL,
+                          receiver_id INT NOT NULL,
+                          sender_role VARCHAR NOT NULL,
+                          receiver_role VARCHAR NOT NULL,
+                          message_text TEXT NOT NULL,
+                          sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Связь с таблицей слушателей
+CREATE TABLE listeners (
+                           listener_id SERIAL PRIMARY KEY,
+                           first_name VARCHAR,
+                           last_name VARCHAR,
+                           email VARCHAR UNIQUE NOT NULL,
+                           password VARCHAR NOT NULL,
+                           birth_date DATE,
+                           profile_photo_url VARCHAR,
+                           description TEXT,
+                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Связь с таблицей специалистов
+CREATE TABLE specialists (
+                             specialist_id SERIAL PRIMARY KEY,
+                             first_name VARCHAR,
+                             last_name VARCHAR,
+                             email VARCHAR UNIQUE NOT NULL,
+                             password VARCHAR NOT NULL,
+                             birth_date DATE,
+                             profile_photo_url VARCHAR,
+                             description TEXT,
+                             certification_document_url VARCHAR,
+                             social_links TEXT,
+                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
