@@ -39,12 +39,37 @@ public class FileController {
             @RequestParam("role") String role) {
         try {
             String fileUrl = fileService.getProfilePhotoUrl(userId, role);
-            Map<String, String> response = Map.of("fileUrl", fileUrl);
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok().body(Map.of("fileUrl", fileUrl));
         } catch (IllegalArgumentException e) {
-            Map<String, String> errorResponse = Map.of("error", "Фото профиля не найдено: " + e.getMessage());
-            return ResponseEntity.status(404).body(errorResponse);
+            return ResponseEntity.status(404).body(Map.of("error", "Фото профиля не найдено: " + e.getMessage()));
         }
     }
 
+    @PostMapping("/upload-course-cover")
+    public ResponseEntity<?> uploadCourseCover(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("courseId") Long courseId) {
+        try {
+            String fileUrl = fileService.uploadCourseCover(file, courseId);
+            return ResponseEntity.ok().body("Обложка курса успешно загружена: " + fileUrl);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("Ошибка при загрузке обложки курса: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Эндпоинт для получения обложки курса.
+     *
+     * @param courseId идентификатор курса
+     * @return URL обложки курса
+     */
+    @GetMapping("/course-cover")
+    public ResponseEntity<?> getCourseCover(@RequestParam("courseId") Long courseId) {
+        try {
+            String coverUrl = fileService.getCourseCoverUrl(courseId);
+            return ResponseEntity.ok().body(Map.of("coverUrl", coverUrl));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
