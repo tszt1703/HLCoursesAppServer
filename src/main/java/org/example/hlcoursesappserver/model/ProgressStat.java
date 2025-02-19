@@ -3,26 +3,95 @@ package org.example.hlcoursesappserver.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+// Таблица для отслеживания прогресса пользователей
 @Entity
 @Table(name = "progress_stats")
 public class ProgressStat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long progress_id;
+    private Long progressId;
 
-    @ManyToOne
-    @JoinColumn(name = "listener_id", nullable = false)
-    private Listener listener;
+    private Long listenerId;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    private Long courseId;
 
-    private int lessons_completed;
-    private int tests_passed;
-    private double progress_percent;
-    private LocalDateTime last_accessed;
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer lessonsCompleted;
 
-    // Getters and setters
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer testsPassed;
+
+    @Column(nullable = false, columnDefinition = "FLOAT DEFAULT 0")
+    private Float progressPercent;
+
+    // Getters and Setters
+
+    public Long getProgressId() {
+        return progressId;
+    }
+
+    public void setProgressId(Long progressId) {
+        this.progressId = progressId;
+    }
+
+    public Long getListenerId() {
+        return listenerId;
+    }
+
+    public void setListenerId(Long listenerId) {
+        this.listenerId = listenerId;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
+    }
+
+    public Integer getLessonsCompleted() {
+        return lessonsCompleted;
+    }
+
+    public void setLessonsCompleted(Integer lessonsCompleted) {
+        this.lessonsCompleted = lessonsCompleted;
+    }
+
+    public Integer getTestsPassed() {
+        return testsPassed;
+    }
+
+    public void setTestsPassed(Integer testsPassed) {
+        this.testsPassed = testsPassed;
+    }
+
+    public Float getProgressPercent() {
+        return progressPercent;
+    }
+
+    public void setProgressPercent(Float progressPercent) {
+        this.progressPercent = progressPercent;
+    }
+
+    public ProgressStat() {
+    }
+
+    public ProgressStat(Long listenerId, Long courseId) {
+        this.listenerId = listenerId;
+        this.courseId = courseId;
+    }
+
+    @Override
+    public String toString() {
+        return "ProgressStat{" +
+                "progressId=" + progressId +
+                ", listenerId=" + listenerId +
+                ", courseId=" + courseId +
+                ", lessonsCompleted=" + lessonsCompleted +
+                ", testsPassed=" + testsPassed +
+                ", progressPercent=" + progressPercent +
+                '}';
+    }
 }
 

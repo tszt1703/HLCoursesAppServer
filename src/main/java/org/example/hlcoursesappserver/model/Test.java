@@ -8,16 +8,43 @@ import java.time.LocalDateTime;
 public class Test {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long test_id;
+    private Long testId;
 
-    @ManyToOne
-    @JoinColumn(name = "lesson_id", nullable = false)
-    private Lesson lesson;
+    private Long lessonId;
 
     private String title;
-    private String question;
-    private String correct_answer;
-    private LocalDateTime created_at;
 
-    // Getters and setters
+    // Getters and Setters
+
+    public Long getTestId() {
+        return testId;
+    }
+
+    public void setTestId(Long testId) {
+        this.testId = testId;
+    }
+
+    public Long getLessonId() {
+        return lessonId;
+    }
+
+    public void setLessonId(Long lesson) {
+        this.lessonId = lesson;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Test() {
+    }
+
+    public Test(Long lessonId, String title) {
+        this.lessonId = lessonId;
+        this.title = title;
+    }
 }

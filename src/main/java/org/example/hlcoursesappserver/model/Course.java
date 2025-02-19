@@ -9,55 +9,52 @@ import java.util.List;
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long courseId;
 
-    @ManyToOne
-    @JoinColumn(name = "specialist_id", nullable = false)
-    private Specialist specialist;
+    private Long specialistId;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private CourseCategory category;
+    private Long categoryId;
 
     private String title;
-    private String description;
-    private String difficulty_level;
-    private String age_group;
-    private int duration_days;
-    private String plan;
-    private String photo_url;
-    private String video_url;
-    private boolean certificate_available;
-    private LocalDateTime created_at;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Lesson> lessons;
+    private String shortDescription;
 
+    private String fullDescription;
+
+    private String difficultyLevel;
+
+    private String ageGroup;
+    private Integer durationDays;
+    private String photoUrl;
+
+    @Column(nullable = false, columnDefinition = "VARCHAR DEFAULT 'draft'")
+    private String status;
     // Getters and setters
 
-    public Long get_id() {
-        return id;
+    public Long getCourseId() {
+        return courseId;
     }
 
-    public void set_id(Long course_id) {
-        this.id = course_id;
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
     }
 
-    public Specialist getSpecialist() {
-        return specialist;
+    public Long getSpecialistId() {
+        return specialistId;
     }
 
-    public void setSpecialist(Specialist specialist) {
-        this.specialist = specialist;
+    public void setSpecialistId(Long specialistId) {
+        this.specialistId = specialistId;
     }
 
-    public CourseCategory getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(CourseCategory category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
+
 
     public String getTitle() {
         return title;
@@ -67,124 +64,94 @@ public class Course {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getShortDescription() {
+        return shortDescription;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
     }
 
-    public String getDifficulty_level() {
-        return difficulty_level;
+    public String getFullDescription() {
+        return fullDescription;
     }
 
-    public void setDifficulty_level(String difficulty_level) {
-        this.difficulty_level = difficulty_level;
+    public void setFullDescription(String fullDescription) {
+        this.fullDescription = fullDescription;
     }
 
-    public String getAge_group() {
-        return age_group;
+    public String getDifficultyLevel() {
+        return difficultyLevel;
     }
 
-    public void setAge_group(String age_group) {
-        this.age_group = age_group;
+    public void setDifficultyLevel(String difficultyLevel) {
+        this.difficultyLevel = difficultyLevel;
     }
 
-    public int getDuration_days() {
-        return duration_days;
+    public String getAgeGroup() {
+        return ageGroup;
     }
 
-    public void setDuration_days(int duration_days) {
-        this.duration_days = duration_days;
+    public void setAgeGroup(String ageGroup) {
+        this.ageGroup = ageGroup;
     }
 
-    public String getPlan() {
-        return plan;
+    public Integer getDurationDays() {
+        return durationDays;
     }
 
-    public void setPlan(String plan) {
-        this.plan = plan;
+    public void setDurationDays(Integer durationDays) {
+        this.durationDays = durationDays;
     }
 
-    public String getPhoto_url() {
-        return photo_url;
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
-    public void setPhoto_url(String photo_url) {
-        this.photo_url = photo_url;
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
-    public String getVideo_url() {
-        return video_url;
+    public String getStatus() {
+        return status;
     }
 
-    public void setVideo_url(String video_url) {
-        this.video_url = video_url;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public boolean isCertificate_available() {
-        return certificate_available;
+
+
+    public Course() {
     }
 
-    public void setCertificate_available(boolean certificate_available) {
-        this.certificate_available = certificate_available;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public List<Lesson> getLessons() {
-        return lessons;
-    }
-
-    public void setLessons(List<Lesson> lessons) {
-        this.lessons = lessons;
+    public Course(Long specialistId, Long categoryId, String title, String shortDescription, String fullDescription, String difficultyLevel, String ageGroup, Integer durationDays, String photoUrl, String status) {
+        this.specialistId = specialistId;
+        this.categoryId = categoryId;
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.fullDescription = fullDescription;
+        this.difficultyLevel = difficultyLevel;
+        this.ageGroup = ageGroup;
+        this.durationDays = durationDays;
+        this.photoUrl = photoUrl;
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "Course{" +
-                "course_id=" + id +
-                ", specialist=" + specialist +
-                ", category=" + category +
+                "courseId=" + courseId +
+                ", specialistId=" + specialistId +
                 ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", difficulty_level='" + difficulty_level + '\'' +
-                ", age_group='" + age_group + '\'' +
-                ", duration_days=" + duration_days +
-                ", plan='" + plan + '\'' +
-                ", photo_url='" + photo_url + '\'' +
-                ", video_url='" + video_url + '\'' +
-                ", certificate_available=" + certificate_available +
-                ", created_at=" + created_at +
+                ", shortDescription='" + shortDescription + '\'' +
+                ", fullDescription='" + fullDescription + '\'' +
+                ", difficultyLevel='" + difficultyLevel + '\'' +
+                ", ageGroup='" + ageGroup + '\'' +
+                ", durationDays=" + durationDays +
+                ", photoUrl='" + photoUrl + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
-
-    public Course() {
-    }
-
-    public Course(Long id, Specialist specialist, CourseCategory category, String title, String description, String difficulty_level, String age_group, int duration_days, String plan, String photo_url, String video_url, boolean certificate_available, LocalDateTime created_at, List<Lesson> lessons) {
-        this.id = id;
-        this.specialist = specialist;
-        this.category = category;
-        this.title = title;
-        this.description = description;
-        this.difficulty_level = difficulty_level;
-        this.age_group = age_group;
-        this.duration_days = duration_days;
-        this.plan = plan;
-        this.photo_url = photo_url;
-        this.video_url = video_url;
-        this.certificate_available = certificate_available;
-        this.created_at = created_at;
-        this.lessons = lessons;
-    }
-
 
 }
