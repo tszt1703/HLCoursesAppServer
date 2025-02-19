@@ -25,15 +25,14 @@ public class CourseController {
 
     /**
      * Эндпоинт для создания нового курса.
-     * В реальном приложении идентификатор специалиста следует получать из контекста безопасности.
+     * Идентификатор специалиста передается с клиентской стороны.
      *
      * @param courseRequest входящие данные для создания курса
      * @return созданный курс с HTTP-статусом 201 (Created)
      */
     @PostMapping
     public ResponseEntity<Course> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
-        // Пока жёстко заданный идентификатор специалиста.
-        Long specialistId = 1L;
+        Long specialistId = courseRequest.getSpecialistId();
         Course createdCourse = courseService.createCourse(courseRequest, specialistId);
         return new ResponseEntity<>(createdCourse, HttpStatus.CREATED);
     }

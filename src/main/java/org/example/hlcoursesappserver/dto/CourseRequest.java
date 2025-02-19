@@ -7,6 +7,9 @@ import org.hibernate.validator.constraints.URL;
 
 public class CourseRequest {
 
+    @NotNull(message = "Идентификатор специалиста обязателен")
+    private Long specialistId;
+
     @NotNull(message = "Идентификатор категории обязателен")
     private Long categoryId;
 
@@ -36,6 +39,14 @@ public class CourseRequest {
     }
 
     // Геттеры и сеттеры
+
+    public Long getSpecialistId() {
+        return specialistId;
+    }
+
+    public void setSpecialistId(Long specialistId) {
+        this.specialistId = specialistId;
+    }
 
     public Long getCategoryId() {
         return categoryId;
