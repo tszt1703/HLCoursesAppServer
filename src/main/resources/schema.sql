@@ -47,7 +47,6 @@ CREATE TABLE tests (
                        test_id SERIAL PRIMARY KEY,
                        lesson_id INT REFERENCES lessons(lesson_id) ON DELETE CASCADE,
                        title VARCHAR NOT NULL,
-                       status VARCHAR DEFAULT 'pending', -- Статус: pending, approved, rejected
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
