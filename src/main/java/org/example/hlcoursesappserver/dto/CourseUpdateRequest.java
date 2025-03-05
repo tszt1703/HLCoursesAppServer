@@ -7,8 +7,7 @@ import org.hibernate.validator.constraints.URL;
 
 public class CourseUpdateRequest {
 
-    @NotNull(message = "Идентификатор категории обязателен")
-    private Long categoryId;
+    private String categoryName; // Заменяем categoryId на categoryName
 
     @NotBlank(message = "Название курса обязательно")
     @Size(max = 255, message = "Название курса не должно превышать 255 символов")
@@ -35,13 +34,8 @@ public class CourseUpdateRequest {
 
     // Геттеры и сеттеры
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
     public String getTitle() {
         return title;

@@ -10,6 +10,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -64,10 +66,10 @@ public class CourseController {
             }
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Ошибка обновления курса: неверный categoryId или другая проблема с данными - " + e.getMessage());
+                    .body("Ошибка обновления курса: проблема с данными - " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Произошла ошибка при обновлении курса: " + e.getMessage());
+                    .body("Ошибка при обновлении курса: " + e.getMessage());
         }
     }
 
@@ -355,6 +357,34 @@ public class CourseController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Ошибка при обновлении ответа: " + e.getMessage());
+        }
+    }
+
+    // Новые эндпоинты для поиска и фильтрации
+    @GetMapping("/search")
+    public ResponseEntity<?> searchCoursesByTitle(@RequestParam("title") String title) {
+        try {
+            List<Course> courses = courseService.searchCoursesByTitle(title);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при поиске курсов: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterCourses(
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "ageGroup", required = false) String ageGroup,
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(value = "difficultyLevel", required = false) String difficultyLevel,
+            @RequestParam(value = "durationDays", required = false) Integer durationDays) {
+        try {
+            List<Course> courses = courseService.filterCourses(title, ageGroup, categoryId, difficultyLevel, durationDays);
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при фильтрации курсов: " + e.getMessage());
         }
     }
 }

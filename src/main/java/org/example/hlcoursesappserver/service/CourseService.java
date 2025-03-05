@@ -6,6 +6,7 @@ import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,22 +62,39 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
+    @Transactional
     public Optional<Course> updateCourse(Long courseId, CourseUpdateRequest updateRequest) {
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isPresent()) {
             Course course = courseOpt.get();
-            course.setCategoryId(updateRequest.getCategoryId());
-            course.setTitle(updateRequest.getTitle());
-            course.setShortDescription(updateRequest.getShortDescription());
-            course.setFullDescription(updateRequest.getFullDescription());
-            course.setDifficultyLevel(updateRequest.getDifficultyLevel());
-            course.setAgeGroup(updateRequest.getAgeGroup());
-            course.setDurationDays(updateRequest.getDurationDays());
-            course.setPhotoUrl(updateRequest.getPhotoUrl());
+
+            // Проверка и обновление категории
+            if (updateRequest.getCategoryName() != null) {
+                Optional<CourseCategory> categoryOpt = courseCategoryRepository.findByCategoryName(updateRequest.getCategoryName());
+                CourseCategory category;
+                if (categoryOpt.isPresent()) {
+                    category = categoryOpt.get();
+                } else {
+                    category = new CourseCategory(updateRequest.getCategoryName());
+                    category = courseCategoryRepository.save(category);
+                }
+                course.setCategoryId(category.getCategoryId());
+            }
+
+            // Обновление остальных полей
+            if (updateRequest.getTitle() != null) course.setTitle(updateRequest.getTitle());
+            if (updateRequest.getShortDescription() != null) course.setShortDescription(updateRequest.getShortDescription());
+            if (updateRequest.getFullDescription() != null) course.setFullDescription(updateRequest.getFullDescription());
+            if (updateRequest.getDifficultyLevel() != null) course.setDifficultyLevel(updateRequest.getDifficultyLevel());
+            if (updateRequest.getAgeGroup() != null) course.setAgeGroup(updateRequest.getAgeGroup());
+            if (updateRequest.getDurationDays() != null) course.setDurationDays(updateRequest.getDurationDays());
+            if (updateRequest.getPhotoUrl() != null) course.setPhotoUrl(updateRequest.getPhotoUrl());
+
             return Optional.of(courseRepository.save(course));
         }
         return Optional.empty();
     }
+
 
     public CourseModule createModule(Long courseId, ModuleRequest moduleRequest) {
         CourseModule module = new CourseModule();
@@ -238,5 +256,14 @@ public class CourseService {
             return Optional.of(answerRepository.save(answer));
         }
         return Optional.empty();
+    }
+
+    // Новые методы для поиска и фильтрации
+    public List<Course> searchCoursesByTitle(String title) {
+        return courseRepository.findByTitleContainingIgnoreCase(title);
+    }
+
+    public List<Course> filterCourses(String title, String ageGroup, Long categoryId, String difficultyLevel, Integer durationDays) {
+        return courseRepository.findCoursesByFilters(title, ageGroup, categoryId, difficultyLevel, durationDays);
     }
 }
