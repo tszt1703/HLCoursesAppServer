@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
+import jakarta.transaction.Transactional;
 import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.repository.*;
@@ -123,5 +124,56 @@ public class CourseService {
     // Метод для удаления курса
     public void deleteCourse(Long courseId) {
         courseRepository.deleteById(courseId); // Каскадное удаление сработает автоматически
+    }
+
+    // Новые методы для удаления отдельных сущностей
+    @Transactional
+    public void deleteModule(Long moduleId) {
+        // Проверяем существование модуля
+        Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
+        if (!moduleOpt.isPresent()) {
+            throw new IllegalArgumentException("Модуль с ID " + moduleId + " не найден");
+        }
+        moduleRepository.deleteById(moduleId); // Каскадное удаление уроков, тестов, вопросов и ответов
+    }
+
+    @Transactional
+    public void deleteLesson(Long lessonId) {
+        // Проверяем существование урока
+        Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);
+        if (!lessonOpt.isPresent()) {
+            throw new IllegalArgumentException("Урок с ID " + lessonId + " не найден");
+        }
+        lessonRepository.deleteById(lessonId); // Каскадное удаление тестов, вопросов и ответов
+    }
+
+    @Transactional
+    public void deleteTest(Long testId) {
+        // Проверяем существование теста
+        Optional<Test> testOpt = testRepository.findById(testId);
+        if (!testOpt.isPresent()) {
+            throw new IllegalArgumentException("Тест с ID " + testId + " не найден");
+        }
+        testRepository.deleteById(testId); // Каскадное удаление вопросов и ответов
+    }
+
+    @Transactional
+    public void deleteQuestion(Long questionId) {
+        // Проверяем существование вопроса
+        Optional<Question> questionOpt = questionRepository.findById(questionId);
+        if (!questionOpt.isPresent()) {
+            throw new IllegalArgumentException("Вопрос с ID " + questionId + " не найден");
+        }
+        questionRepository.deleteById(questionId); // Каскадное удаление ответов
+    }
+
+    @Transactional
+    public void deleteAnswer(Long answerId) {
+        // Проверяем существование ответа
+        Optional<Answer> answerOpt = answerRepository.findById(answerId);
+        if (!answerOpt.isPresent()) {
+            throw new IllegalArgumentException("Ответ с ID " + answerId + " не найден");
+        }
+        answerRepository.deleteById(answerId); // Просто удаляем ответ
     }
 }

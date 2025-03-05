@@ -175,4 +175,90 @@ public class CourseController {
                     .body("Ошибка при удалении курса: " + e.getMessage());
         }
     }
+
+    // Новые эндпоинты для удаления отдельных сущностей
+    @DeleteMapping("/{courseId}/modules/{moduleId}")
+    public ResponseEntity<?> deleteModule(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId) {
+        try {
+            courseService.deleteModule(moduleId);
+            return new ResponseEntity<>("Модуль с ID " + moduleId + " успешно удален", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении модуля: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<?> deleteLesson(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @PathVariable Long lessonId) {
+        try {
+            courseService.deleteLesson(lessonId);
+            return new ResponseEntity<>("Урок с ID " + lessonId + " успешно удален", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении урока: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
+    public ResponseEntity<?> deleteTest(@PathVariable Long courseId,
+                                        @PathVariable Long moduleId,
+                                        @PathVariable Long lessonId,
+                                        @PathVariable Long testId) {
+        try {
+            courseService.deleteTest(testId);
+            return new ResponseEntity<>("Тест с ID " + testId + " успешно удален", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении теста: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
+    public ResponseEntity<?> deleteQuestion(@PathVariable Long courseId,
+                                            @PathVariable Long moduleId,
+                                            @PathVariable Long lessonId,
+                                            @PathVariable Long testId,
+                                            @PathVariable Long questionId) {
+        try {
+            courseService.deleteQuestion(questionId);
+            return new ResponseEntity<>("Вопрос с ID " + questionId + " успешно удален", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении вопроса: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @PathVariable Long lessonId,
+                                          @PathVariable Long testId,
+                                          @PathVariable Long questionId,
+                                          @PathVariable Long answerId) {
+        try {
+            courseService.deleteAnswer(answerId);
+            return new ResponseEntity<>("Ответ с ID " + answerId + " успешно удален", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении ответа: " + e.getMessage());
+        }
+    }
 }
