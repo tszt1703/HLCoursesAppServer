@@ -1,7 +1,6 @@
 package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 // Таблица для отзывов
 @Entity

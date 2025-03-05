@@ -149,7 +149,7 @@ public class CourseService {
     public void deleteModule(Long moduleId) {
         // Проверяем существование модуля
         Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
-        if (!moduleOpt.isPresent()) {
+        if (moduleOpt.isEmpty()) {
             throw new IllegalArgumentException("Модуль с ID " + moduleId + " не найден");
         }
         moduleRepository.deleteById(moduleId); // Каскадное удаление уроков, тестов, вопросов и ответов
@@ -159,7 +159,7 @@ public class CourseService {
     public void deleteLesson(Long lessonId) {
         // Проверяем существование урока
         Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);
-        if (!lessonOpt.isPresent()) {
+        if (lessonOpt.isEmpty()) {
             throw new IllegalArgumentException("Урок с ID " + lessonId + " не найден");
         }
         lessonRepository.deleteById(lessonId); // Каскадное удаление тестов, вопросов и ответов
@@ -169,7 +169,7 @@ public class CourseService {
     public void deleteTest(Long testId) {
         // Проверяем существование теста
         Optional<Test> testOpt = testRepository.findById(testId);
-        if (!testOpt.isPresent()) {
+        if (testOpt.isEmpty()) {
             throw new IllegalArgumentException("Тест с ID " + testId + " не найден");
         }
         testRepository.deleteById(testId); // Каскадное удаление вопросов и ответов
@@ -179,7 +179,7 @@ public class CourseService {
     public void deleteQuestion(Long questionId) {
         // Проверяем существование вопроса
         Optional<Question> questionOpt = questionRepository.findById(questionId);
-        if (!questionOpt.isPresent()) {
+        if (questionOpt.isEmpty()) {
             throw new IllegalArgumentException("Вопрос с ID " + questionId + " не найден");
         }
         questionRepository.deleteById(questionId); // Каскадное удаление ответов
@@ -189,7 +189,7 @@ public class CourseService {
     public void deleteAnswer(Long answerId) {
         // Проверяем существование ответа
         Optional<Answer> answerOpt = answerRepository.findById(answerId);
-        if (!answerOpt.isPresent()) {
+        if (answerOpt.isEmpty()) {
             throw new IllegalArgumentException("Ответ с ID " + answerId + " не найден");
         }
         answerRepository.deleteById(answerId); // Просто удаляем ответ

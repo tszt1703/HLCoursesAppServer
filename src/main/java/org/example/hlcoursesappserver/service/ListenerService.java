@@ -1,7 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
 import org.example.hlcoursesappserver.model.Listener;
-import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.repository.ListenerRepository;
 import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;

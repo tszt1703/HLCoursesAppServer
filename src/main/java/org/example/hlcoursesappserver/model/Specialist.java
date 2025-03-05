@@ -2,7 +2,6 @@ package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "specialists")
@@ -30,7 +29,6 @@ public class Specialist {
     }
 
     // Getters and setters
-
 
     public Long getSpecialistId() {
         return specialistId;

@@ -14,7 +14,7 @@ public class AppConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")  // Укажите домен вашего фронтенда
+                        .allowedOrigins("http://localhost:3000")  // домен фронтенда
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*");
             }
