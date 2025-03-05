@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id") // Указываем, что в JSON поле будет называться "id"
     private Long courseId;
 
     private Long specialistId;

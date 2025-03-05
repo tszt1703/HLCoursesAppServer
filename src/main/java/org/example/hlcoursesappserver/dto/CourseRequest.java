@@ -10,8 +10,9 @@ public class CourseRequest {
     @NotNull(message = "Идентификатор специалиста обязателен")
     private Long specialistId;
 
-    @NotNull(message = "Идентификатор категории обязателен")
-    private Long categoryId;
+    @NotBlank(message = "Название категории обязательно")
+    @Size(max = 255, message = "Название категории не должно превышать 255 символов")
+    private String categoryName; // Заменяем categoryId на categoryName
 
     @NotBlank(message = "Название курса обязательно")
     @Size(max = 255, message = "Название курса не должно превышать 255 символов")
@@ -39,7 +40,6 @@ public class CourseRequest {
     }
 
     // Геттеры и сеттеры
-
     public Long getSpecialistId() {
         return specialistId;
     }
@@ -48,12 +48,12 @@ public class CourseRequest {
         this.specialistId = specialistId;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public String getTitle() {

@@ -16,11 +16,11 @@ public class CourseCategory {
 
     // Getters and setters
 
-    public Long getCategory_id() {
+    public Long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategory_id(Long categoryId) {
+    public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
 
