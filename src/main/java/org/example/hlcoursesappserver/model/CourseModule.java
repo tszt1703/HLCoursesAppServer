@@ -3,6 +3,8 @@ package org.example.hlcoursesappserver.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 // Таблица для модулей курсов
 @Entity
 @Table(name = "course_modules")
@@ -21,6 +23,9 @@ public class CourseModule {
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer position;
+
+    @OneToMany(mappedBy = "moduleId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Lesson> lessons;
 
     // Getters and Setters
 
@@ -63,6 +68,10 @@ public class CourseModule {
     public void setPosition(Integer position) {
         this.position = position;
     }
+
+    public List<Lesson> getLessons() { return lessons; }
+    public void setLessons(List<Lesson> lessons) { this.lessons = lessons; }
+
 
     public CourseModule() {
     }

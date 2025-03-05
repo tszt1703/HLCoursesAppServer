@@ -3,6 +3,7 @@ package org.example.hlcoursesappserver.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tests")
@@ -15,6 +16,9 @@ public class Test {
     private Long lessonId;
 
     private String title;
+
+    @OneToMany(mappedBy = "testId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Question> questions;
 
     // Getters and Setters
 
@@ -41,6 +45,10 @@ public class Test {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public List<Question> getQuestions() { return questions; }
+    public void setQuestions(List<Question> questions) { this.questions = questions; }
+
 
     public Test() {
     }

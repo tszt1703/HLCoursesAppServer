@@ -31,6 +31,10 @@ public class Course {
 
     @Column(nullable = false, columnDefinition = "VARCHAR DEFAULT 'draft'")
     private String status;
+
+    @OneToMany(mappedBy = "courseId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CourseModule> modules;
+
     // Getters and setters
 
     public Long getCourseId() {
@@ -122,6 +126,8 @@ public class Course {
         this.status = status;
     }
 
+    public List<CourseModule> getModules() { return modules; }
+    public void setModules(List<CourseModule> modules) { this.modules = modules; }
 
 
     public Course() {

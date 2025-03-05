@@ -18,6 +18,9 @@ public class Question {
     @Column(nullable = false)
     private String questionText;
 
+    @OneToMany(mappedBy = "questionId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Answer> answers;
+
     // Getters and Setters
 
     public Long getQuestionId() {
@@ -43,6 +46,10 @@ public class Question {
     public void setQuestionText(String questionText) {
         this.questionText = questionText;
     }
+
+    public List<Answer> getAnswers() { return answers; }
+    public void setAnswers(List<Answer> answers) { this.answers = answers; }
+
 
     public Question() {
     }

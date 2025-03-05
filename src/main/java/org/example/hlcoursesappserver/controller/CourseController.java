@@ -163,4 +163,16 @@ public class CourseController {
                     .body("Произошла ошибка при создании ответа: " + e.getMessage());
         }
     }
+
+    // Новый эндпоинт для удаления курса
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<?> deleteCourse(@PathVariable Long courseId) {
+        try {
+            courseService.deleteCourse(courseId);
+            return new ResponseEntity<>("Курс с ID " + courseId + " успешно удален", HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при удалении курса: " + e.getMessage());
+        }
+    }
 }

@@ -3,6 +3,8 @@ package org.example.hlcoursesappserver.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "lessons")
 public class Lesson {
@@ -21,6 +23,9 @@ public class Lesson {
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer position;
+
+    @OneToMany(mappedBy = "lessonId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Test> tests;
 
     // Getters and setters
 
@@ -80,6 +85,10 @@ public class Lesson {
     public void setPosition(Integer position) {
         this.position = position;
     }
+
+    public List<Test> getTests() { return tests; }
+    public void setTests(List<Test> tests) { this.tests = tests; }
+
 
     public Lesson() {
     }

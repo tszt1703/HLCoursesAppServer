@@ -119,4 +119,9 @@ public class CourseService {
         answer.setCorrect(answerRequest.getIsCorrect());
         return answerRepository.save(answer);
     }
+
+    // Метод для удаления курса
+    public void deleteCourse(Long courseId) {
+        courseRepository.deleteById(courseId); // Каскадное удаление сработает автоматически
+    }
 }
