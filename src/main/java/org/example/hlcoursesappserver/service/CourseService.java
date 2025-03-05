@@ -176,4 +176,67 @@ public class CourseService {
         }
         answerRepository.deleteById(answerId); // Просто удаляем ответ
     }
+
+    // Новые методы для обновления
+    @Transactional
+    public Optional<CourseModule> updateModule(Long moduleId, ModuleUpdateRequest updateRequest) {
+        Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
+        if (moduleOpt.isPresent()) {
+            CourseModule module = moduleOpt.get();
+            module.setTitle(updateRequest.getTitle());
+            if (updateRequest.getDescription() != null) module.setDescription(updateRequest.getDescription());
+            if (updateRequest.getPosition() != null) module.setPosition(updateRequest.getPosition());
+            return Optional.of(moduleRepository.save(module));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Lesson> updateLesson(Long lessonId, LessonUpdateRequest updateRequest) {
+        Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);
+        if (lessonOpt.isPresent()) {
+            Lesson lesson = lessonOpt.get();
+            lesson.setTitle(updateRequest.getTitle());
+            if (updateRequest.getContent() != null) lesson.setContent(updateRequest.getContent());
+            if (updateRequest.getPhotoUrl() != null) lesson.setPhotoUrl(updateRequest.getPhotoUrl());
+            if (updateRequest.getVideoUrl() != null) lesson.setVideoUrl(updateRequest.getVideoUrl());
+            if (updateRequest.getPosition() != null) lesson.setPosition(updateRequest.getPosition());
+            return Optional.of(lessonRepository.save(lesson));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Test> updateTest(Long testId, TestUpdateRequest updateRequest) {
+        Optional<Test> testOpt = testRepository.findById(testId);
+        if (testOpt.isPresent()) {
+            Test test = testOpt.get();
+            test.setTitle(updateRequest.getTitle());
+            return Optional.of(testRepository.save(test));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Question> updateQuestion(Long questionId, QuestionUpdateRequest updateRequest) {
+        Optional<Question> questionOpt = questionRepository.findById(questionId);
+        if (questionOpt.isPresent()) {
+            Question question = questionOpt.get();
+            question.setQuestionText(updateRequest.getQuestionText());
+            return Optional.of(questionRepository.save(question));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Answer> updateAnswer(Long answerId, AnswerUpdateRequest updateRequest) {
+        Optional<Answer> answerOpt = answerRepository.findById(answerId);
+        if (answerOpt.isPresent()) {
+            Answer answer = answerOpt.get();
+            answer.setAnswerText(updateRequest.getAnswerText());
+            answer.setCorrect(updateRequest.getIsCorrect());
+            return Optional.of(answerRepository.save(answer));
+        }
+        return Optional.empty();
+    }
 }

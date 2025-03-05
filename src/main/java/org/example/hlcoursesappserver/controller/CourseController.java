@@ -261,4 +261,100 @@ public class CourseController {
                     .body("Ошибка при удалении ответа: " + e.getMessage());
         }
     }
+
+    // Новые эндпоинты для обновления
+    @PutMapping("/{courseId}/modules/{moduleId}")
+    public ResponseEntity<?> updateModule(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @Valid @RequestBody ModuleUpdateRequest updateRequest) {
+        try {
+            Optional<CourseModule> updatedModuleOpt = courseService.updateModule(moduleId, updateRequest);
+            if (updatedModuleOpt.isPresent()) {
+                return new ResponseEntity<>(updatedModuleOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Модуль с ID " + moduleId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при обновлении модуля: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<?> updateLesson(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @PathVariable Long lessonId,
+                                          @Valid @RequestBody LessonUpdateRequest updateRequest) {
+        try {
+            Optional<Lesson> updatedLessonOpt = courseService.updateLesson(lessonId, updateRequest);
+            if (updatedLessonOpt.isPresent()) {
+                return new ResponseEntity<>(updatedLessonOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Урок с ID " + lessonId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при обновлении урока: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
+    public ResponseEntity<?> updateTest(@PathVariable Long courseId,
+                                        @PathVariable Long moduleId,
+                                        @PathVariable Long lessonId,
+                                        @PathVariable Long testId,
+                                        @Valid @RequestBody TestUpdateRequest updateRequest) {
+        try {
+            Optional<Test> updatedTestOpt = courseService.updateTest(testId, updateRequest);
+            if (updatedTestOpt.isPresent()) {
+                return new ResponseEntity<>(updatedTestOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Тест с ID " + testId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при обновлении теста: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
+    public ResponseEntity<?> updateQuestion(@PathVariable Long courseId,
+                                            @PathVariable Long moduleId,
+                                            @PathVariable Long lessonId,
+                                            @PathVariable Long testId,
+                                            @PathVariable Long questionId,
+                                            @Valid @RequestBody QuestionUpdateRequest updateRequest) {
+        try {
+            Optional<Question> updatedQuestionOpt = courseService.updateQuestion(questionId, updateRequest);
+            if (updatedQuestionOpt.isPresent()) {
+                return new ResponseEntity<>(updatedQuestionOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Вопрос с ID " + questionId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при обновлении вопроса: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
+    public ResponseEntity<?> updateAnswer(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @PathVariable Long lessonId,
+                                          @PathVariable Long testId,
+                                          @PathVariable Long questionId,
+                                          @PathVariable Long answerId,
+                                          @Valid @RequestBody AnswerUpdateRequest updateRequest) {
+        try {
+            Optional<Answer> updatedAnswerOpt = courseService.updateAnswer(answerId, updateRequest);
+            if (updatedAnswerOpt.isPresent()) {
+                return new ResponseEntity<>(updatedAnswerOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Ответ с ID " + answerId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при обновлении ответа: " + e.getMessage());
+        }
+    }
 }
