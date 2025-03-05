@@ -1,17 +1,8 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.dto.CourseRequest;
-import org.example.hlcoursesappserver.dto.CourseUpdateRequest;
-import org.example.hlcoursesappserver.dto.ModuleRequest;
-import org.example.hlcoursesappserver.dto.LessonRequest;
-import org.example.hlcoursesappserver.model.Course;
-import org.example.hlcoursesappserver.model.CourseCategory;
-import org.example.hlcoursesappserver.model.CourseModule;
-import org.example.hlcoursesappserver.model.Lesson;
-import org.example.hlcoursesappserver.repository.CourseCategoryRepository;
-import org.example.hlcoursesappserver.repository.CourseRepository;
-import org.example.hlcoursesappserver.repository.CourseModuleRepository;
-import org.example.hlcoursesappserver.repository.LessonRepository;
+import org.example.hlcoursesappserver.dto.*;
+import org.example.hlcoursesappserver.model.*;
+import org.example.hlcoursesappserver.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,33 +14,41 @@ public class CourseService {
     private final CourseModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
     private final CourseCategoryRepository courseCategoryRepository;
+    private final TestRepository testRepository; // Новый репозиторий
+    private final QuestionRepository questionRepository; // Новый репозиторий
+    private final AnswerRepository answerRepository; // Новый репозиторий
 
     public CourseService(CourseRepository courseRepository,
                          CourseModuleRepository moduleRepository,
                          LessonRepository lessonRepository,
-                         CourseCategoryRepository courseCategoryRepository) {
+                         CourseCategoryRepository courseCategoryRepository,
+                         TestRepository testRepository,
+                         QuestionRepository questionRepository,
+                         AnswerRepository answerRepository) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.lessonRepository = lessonRepository;
         this.courseCategoryRepository = courseCategoryRepository;
+        this.testRepository = testRepository;
+        this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
     }
 
+    // Существующие методы остаются без изменений
     public Course createCourse(CourseRequest courseRequest, Long specialistId) {
-        // Проверяем наличие категории по имени
         Optional<CourseCategory> categoryOpt = courseCategoryRepository.findByCategoryName(courseRequest.getCategoryName());
         CourseCategory category;
 
         if (categoryOpt.isPresent()) {
             category = categoryOpt.get();
         } else {
-            // Создаем новую категорию, если она не найдена
             category = new CourseCategory(courseRequest.getCategoryName());
             category = courseCategoryRepository.save(category);
         }
 
         Course course = new Course();
         course.setSpecialistId(specialistId);
-        course.setCategoryId(category.getCategoryId()); // Используем ID категории
+        course.setCategoryId(category.getCategoryId());
         course.setTitle(courseRequest.getTitle());
         course.setShortDescription(courseRequest.getShortDescription());
         course.setFullDescription(courseRequest.getFullDescription());
@@ -61,7 +60,6 @@ public class CourseService {
         return courseRepository.save(course);
     }
 
-    // Остальные методы остаются без изменений
     public Optional<Course> updateCourse(Long courseId, CourseUpdateRequest updateRequest) {
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isPresent()) {
@@ -97,5 +95,28 @@ public class CourseService {
         lesson.setVideoUrl(lessonRequest.getVideoUrl());
         lesson.setPosition(lessonRequest.getPosition());
         return lessonRepository.save(lesson);
+    }
+
+    // Новые методы для тестов
+    public Test createTest(Long lessonId, TestRequest testRequest) {
+        Test test = new Test();
+        test.setLessonId(lessonId);
+        test.setTitle(testRequest.getTitle());
+        return testRepository.save(test);
+    }
+
+    public Question createQuestion(Long testId, QuestionRequest questionRequest) {
+        Question question = new Question();
+        question.setTestId(testId);
+        question.setQuestionText(questionRequest.getQuestionText());
+        return questionRepository.save(question);
+    }
+
+    public Answer createAnswer(Long questionId, AnswerRequest answerRequest) {
+        Answer answer = new Answer();
+        answer.setQuestionId(questionId);
+        answer.setAnswerText(answerRequest.getAnswerText());
+        answer.setCorrect(answerRequest.getIsCorrect());
+        return answerRepository.save(answer);
     }
 }

@@ -1,12 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
-import org.example.hlcoursesappserver.dto.CourseRequest;
-import org.example.hlcoursesappserver.dto.CourseUpdateRequest;
-import org.example.hlcoursesappserver.dto.ModuleRequest;
-import org.example.hlcoursesappserver.dto.LessonRequest;
-import org.example.hlcoursesappserver.model.Course;
-import org.example.hlcoursesappserver.model.CourseModule;
-import org.example.hlcoursesappserver.model.Lesson;
+import org.example.hlcoursesappserver.dto.*;
+import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.service.CourseService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -111,6 +106,61 @@ public class CourseController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Произошла ошибка при создании урока: " + e.getMessage());
+        }
+    }
+
+    // Новые эндпоинты для тестов
+    @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
+    public ResponseEntity<?> createTest(@PathVariable Long courseId,
+                                        @PathVariable Long moduleId,
+                                        @PathVariable Long lessonId,
+                                        @Valid @RequestBody TestRequest testRequest) {
+        try {
+            Test createdTest = courseService.createTest(lessonId, testRequest);
+            return new ResponseEntity<>(createdTest, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка создания теста: урок с ID " + lessonId + " не существует");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Произошла ошибка при создании теста: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
+    public ResponseEntity<?> createQuestion(@PathVariable Long courseId,
+                                            @PathVariable Long moduleId,
+                                            @PathVariable Long lessonId,
+                                            @PathVariable Long testId,
+                                            @Valid @RequestBody QuestionRequest questionRequest) {
+        try {
+            Question createdQuestion = courseService.createQuestion(testId, questionRequest);
+            return new ResponseEntity<>(createdQuestion, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка создания вопроса: тест с ID " + testId + " не существует");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Произошла ошибка при создании вопроса: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers")
+    public ResponseEntity<?> createAnswer(@PathVariable Long courseId,
+                                          @PathVariable Long moduleId,
+                                          @PathVariable Long lessonId,
+                                          @PathVariable Long testId,
+                                          @PathVariable Long questionId,
+                                          @Valid @RequestBody AnswerRequest answerRequest) {
+        try {
+            Answer createdAnswer = courseService.createAnswer(questionId, answerRequest);
+            return new ResponseEntity<>(createdAnswer, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка создания ответа: вопрос с ID " + questionId + " не существует");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Произошла ошибка при создании ответа: " + e.getMessage());
         }
     }
 }

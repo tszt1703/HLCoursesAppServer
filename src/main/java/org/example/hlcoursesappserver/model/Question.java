@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
+    @JsonProperty("id")
     private Long questionId;
 
     private Long testId;

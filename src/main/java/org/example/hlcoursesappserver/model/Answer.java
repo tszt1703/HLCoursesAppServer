@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 // Таблица для ответов на вопросы
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private Long answerId;
 
     private Long questionId;
