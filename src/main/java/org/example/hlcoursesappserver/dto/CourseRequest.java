@@ -10,21 +10,16 @@ public class CourseRequest {
     @NotNull(message = "Идентификатор специалиста обязателен")
     private Long specialistId;
 
-    @NotBlank(message = "Название категории обязательно")
     @Size(max = 255, message = "Название категории не должно превышать 255 символов")
     private String categoryName; // Заменяем categoryId на categoryName
 
-    @NotBlank(message = "Название курса обязательно")
     @Size(max = 255, message = "Название курса не должно превышать 255 символов")
     private String title;
 
-    @NotBlank(message = "Краткое описание обязательно")
     private String shortDescription;
 
-    @NotBlank(message = "Полное описание обязательно")
     private String fullDescription;
 
-    @NotBlank(message = "Уровень сложности обязателен")
     private String difficultyLevel;
 
     // Поле ageGroup можно оставить опциональным
@@ -33,7 +28,7 @@ public class CourseRequest {
     // Поле длительности курса (в днях) можно оставить опциональным
     private Integer durationDays;
 
-    @URL(message = "Некорректный URL для фото")
+    //@URL(message = "Некорректный URL для фото")
     private String photoUrl;
 
     public CourseRequest() {
