@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.repository.*;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -265,5 +266,35 @@ public class CourseService {
 
     public List<Course> filterCourses(String title, String ageGroup, Long categoryId, String difficultyLevel, Integer durationDays) {
         return courseRepository.findCoursesByFilters(title, ageGroup, categoryId, difficultyLevel, durationDays);
+    }
+
+    // Новый метод для получения полной информации о курсе
+    @Transactional
+    public Optional<Course> getCourseWithDetails(Long courseId) {
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isPresent()) {
+            Course course = courseOpt.get();
+            Hibernate.initialize(course.getModules());
+            if (course.getModules() != null) {
+                course.getModules().forEach(module -> {
+                    Hibernate.initialize(module.getLessons());
+                    if (module.getLessons() != null) {
+                        module.getLessons().forEach(lesson -> {
+                            Hibernate.initialize(lesson.getTests());
+                            if (lesson.getTests() != null) {
+                                lesson.getTests().forEach(test -> {
+                                    Hibernate.initialize(test.getQuestions());
+                                    if (test.getQuestions() != null) {
+                                        test.getQuestions().forEach(question -> Hibernate.initialize(question.getAnswers()));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            return Optional.of(course);
+        }
+        return Optional.empty();
     }
 }

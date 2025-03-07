@@ -387,4 +387,20 @@ public class CourseController {
                     .body("Ошибка при фильтрации курсов: " + e.getMessage());
         }
     }
+
+    // Новый эндпоинт для получения полной информации о курсе
+    @GetMapping("/{courseId}")
+    public ResponseEntity<?> getCourseWithDetails(@PathVariable Long courseId) {
+        try {
+            Optional<Course> courseOpt = courseService.getCourseWithDetails(courseId);
+            if (courseOpt.isPresent()) {
+                return new ResponseEntity<>(courseOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Курс с ID " + courseId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при получении курса: " + e.getMessage());
+        }
+    }
 }
