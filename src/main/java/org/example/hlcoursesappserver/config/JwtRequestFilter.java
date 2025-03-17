@@ -30,16 +30,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         String jwt = null;
-        String email = null;
+        Long userId = null;
 
         try {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 jwt = authorizationHeader.substring(7);
-                email = jwtUtil.extractUsername(jwt);
+                userId = jwtUtil.extractUserId(jwt);
             }
 
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUserId(userId, jwtUtil.extractRole(jwt));
 
                 if (jwtUtil.validateToken(jwt)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -48,7 +48,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     // Дополнительные данные
-                    request.setAttribute("userId", jwtUtil.extractUserId(jwt));
+                    request.setAttribute("userId", userId);
                     request.setAttribute("role", jwtUtil.extractRole(jwt));
                 }
             }

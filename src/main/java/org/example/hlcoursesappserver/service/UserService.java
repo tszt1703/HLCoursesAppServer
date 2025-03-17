@@ -18,5 +18,5 @@ public interface UserService<T> {
     void updatePassword(Long id, String oldPassword, String newPassword);
 
     // Новый метод для изменения почты
-    Map<String, String> updateEmail(Long id, String newEmail);
+    void updateEmail(Long id, String newEmail);
 }

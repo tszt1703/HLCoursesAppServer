@@ -117,7 +117,7 @@ public class SpecialistService implements UserService<Specialist> {
     }
 
     @Override
-    public Map<String, String> updateEmail(Long id, String newEmail) {
+    public void updateEmail(Long id, String newEmail) {
         Specialist specialist = specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));
 
@@ -127,12 +127,6 @@ public class SpecialistService implements UserService<Specialist> {
 
         specialist.setEmail(newEmail);
         specialistRepository.save(specialist);
-
-        // Генерация новых токенов
-        String accessToken = jwtUtil.generateAccessToken(specialist.getSpecialistId(), newEmail, "Specialist");
-        String refreshToken = jwtUtil.generateRefreshToken(specialist.getSpecialistId(), newEmail, "Specialist");
-
-        // Возвращаем токены для контроллера
-        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+        // Токены больше не генерируются
     }
 }

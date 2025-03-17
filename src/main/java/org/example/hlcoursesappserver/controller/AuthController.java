@@ -41,8 +41,8 @@ public class AuthController {
         try {
             CustomAuthentication authentication = authService.authenticateUser(request);
 
-            String accessToken = jwtUtil.generateAccessToken(authentication.getUserId(), authentication.getEmail(), authentication.getRole());
-            String refreshToken = jwtUtil.generateRefreshToken(authentication.getUserId(), authentication.getEmail(), authentication.getRole());
+            String accessToken = jwtUtil.generateAccessToken(authentication.getUserId(), authentication.getRole());
+            String refreshToken = jwtUtil.generateRefreshToken(authentication.getUserId(), authentication.getRole());
 
             return ResponseEntity.ok(new LoginResponse(authentication.getUserId(), authentication.getRole(), accessToken, refreshToken));
         } catch (IllegalArgumentException e) {
@@ -58,12 +58,13 @@ public class AuthController {
             String refreshToken = request.get("refreshToken");
             if (jwtUtil.validateRefreshToken(refreshToken)) {
                 Long userId = jwtUtil.extractUserId(refreshToken);
-                String email = jwtUtil.extractUsername(refreshToken);
-                String newAccessToken = jwtUtil.generateAccessToken(userId, email, jwtUtil.extractRole(refreshToken));
+                String role = jwtUtil.extractRole(refreshToken);
+                String newAccessToken = jwtUtil.generateAccessToken(userId, role);
+                String newRefreshToken = jwtUtil.generateRefreshToken(userId, role);
 
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("accessToken", newAccessToken);
-                tokens.put("refreshToken", refreshToken); // Старый или новый refresh токен
+                tokens.put("refreshToken", newRefreshToken);
 
                 return ResponseEntity.ok(tokens);
             } else {

@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Попробуем найти пользователя среди специалистов
+        // Попробуем найти пользователя среди специалистов по email
         Specialist specialist = specialistRepository.findByEmail(username)
                 .orElse(null);
 
@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             return new CustomUserDetails(specialist.getEmail(), specialist.getPassword(), "Specialist");
         }
 
-        // Попробуем найти пользователя среди слушателей
+        // Попробуем найти пользователя среди слушателей по email
         Listener listener = listenerRepository.findByEmail(username)
                 .orElse(null);
 
@@ -39,6 +39,20 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // Если пользователь не найден
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        throw new UsernameNotFoundException("User not found with email: " + username);
+    }
+
+    public UserDetails loadUserByUserId(Long userId, String role) throws UsernameNotFoundException {
+        if ("Specialist".equals(role)) {
+            Specialist specialist = specialistRepository.findById(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Specialist not found with ID: " + userId));
+            return new CustomUserDetails(specialist.getEmail(), specialist.getPassword(), "Specialist");
+        } else if ("Listener".equals(role)) {
+            Listener listener = listenerRepository.findById(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("Listener not found with ID: " + userId));
+            return new CustomUserDetails(listener.getEmail(), listener.getPassword(), "Listener");
+        } else {
+            throw new UsernameNotFoundException("Invalid role: " + role + " for user ID: " + userId);
+        }
     }
 }

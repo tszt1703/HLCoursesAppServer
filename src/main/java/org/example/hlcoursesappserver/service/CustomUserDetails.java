@@ -9,12 +9,12 @@ import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final String username;
+    private final String email;
     private final String password;
     private final String role;
 
-    public CustomUserDetails(String username, String password, String role) {
-        this.username = username;
+    public CustomUserDetails(String email, String password, String role) {
+        this.email = email;
         this.password = password;
         this.role = role;
     }
@@ -31,7 +31,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email; // Используется email как username для совместимости с Spring Security
     }
 
     @Override
@@ -53,5 +53,8 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-}
 
+    public String getRole() {
+        return role;
+    }
+}

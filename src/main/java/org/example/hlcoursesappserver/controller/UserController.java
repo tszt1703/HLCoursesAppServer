@@ -138,26 +138,14 @@ public class UserController {
             if (!specialistService.isUserAuthorizedToUpdate(id, currentEmail)) {
                 return ResponseEntity.status(403).build();
             }
-
-            Map<String, String> tokens = specialistService.updateEmail(id, newEmail);
-
-            return ResponseEntity.ok(Map.of(
-                    "message", "Email успешно обновлен.",
-                    "accessToken", tokens.get("accessToken"),
-                    "refreshToken", tokens.get("refreshToken")
-            ));
+            specialistService.updateEmail(id, newEmail);
+            return ResponseEntity.ok(Map.of("message", "Email успешно обновлен."));
         } else if (role.equals("Listener")) {
             if (!listenerService.isUserAuthorizedToUpdate(id, currentEmail)) {
                 return ResponseEntity.status(403).build();
             }
-
-            Map<String, String> tokens = listenerService.updateEmail(id, newEmail);
-
-            return ResponseEntity.ok(Map.of(
-                    "message", "Email успешно обновлен.",
-                    "accessToken", tokens.get("accessToken"),
-                    "refreshToken", tokens.get("refreshToken")
-            ));
+            listenerService.updateEmail(id, newEmail);
+            return ResponseEntity.ok(Map.of("message", "Email успешно обновлен."));
         }
         return ResponseEntity.badRequest().build();
     }

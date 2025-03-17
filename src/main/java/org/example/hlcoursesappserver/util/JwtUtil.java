@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.example.hlcoursesappserver.exception.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,16 +31,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Long extractUserId(String token) {
+        return extractAllClaims(token).get("userId", Long.class);
     }
 
     public String extractRole(String token) {
         return extractAllClaims(token).get("role", String.class);
-    }
-
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("userId", Long.class);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -53,9 +50,12 @@ public class JwtUtil {
 
     public Boolean validateToken(String token) {
         try {
+            Claims claims = extractAllClaims(token);
             return !isTokenExpired(token);
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            throw new InvalidTokenException("Token has expired");
         } catch (Exception e) {
-            return false;
+            throw new InvalidTokenException("Invalid token: " + e.getMessage());
         }
     }
 
@@ -67,27 +67,23 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Генерация access токена
-    public String generateAccessToken(Long userId, String email, String role) {
+    public String generateAccessToken(Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("role", role);
-        return createToken(claims, email, accessExpirationMs);
+        return createToken(claims, accessExpirationMs);
     }
 
-    // Генерация refresh токена
-    public String generateRefreshToken(Long userId, String email, String role) {
+    public String generateRefreshToken(Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("role", role); // Добавление роли
-        return createToken(claims, email, refreshExpirationMs);
+        claims.put("role", role);
+        return createToken(claims, refreshExpirationMs);
     }
 
-
-    private String createToken(Map<String, Object> claims, String subject, long expiration) {
+    private String createToken(Map<String, Object> claims, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -101,8 +97,4 @@ public class JwtUtil {
             return false;
         }
     }
-
-
 }
-
-

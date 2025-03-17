@@ -112,7 +112,7 @@ public class ListenerService implements UserService<Listener> {
     }
 
     @Override
-    public Map<String, String> updateEmail(Long id, String newEmail) {
+    public void updateEmail(Long id, String newEmail) {
         Listener listener = listenerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listener not found"));
 
@@ -122,15 +122,6 @@ public class ListenerService implements UserService<Listener> {
 
         listener.setEmail(newEmail);
         listenerRepository.save(listener);
-
-        // Генерация новых токенов с правильной ролью
-        String accessToken = jwtUtil.generateAccessToken(listener.getListenerId(), newEmail, "Listener");
-        String refreshToken = jwtUtil.generateRefreshToken(listener.getListenerId(), newEmail, "Listener");
-
-        // Возвращаем токены для контроллера
-        return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+        // Токены больше не генерируются
     }
-
-
-
 }

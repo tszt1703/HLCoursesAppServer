@@ -47,15 +47,4 @@ public class AuthService {
         // Если пользователь не найден или неверный пароль
         throw new IllegalArgumentException("Неверный email или пароль");
     }
-
-    public String refreshToken(String refreshToken) {
-        if (jwtUtil.validateRefreshToken(refreshToken)) {
-            String email = jwtUtil.extractUsername(refreshToken);
-            String role = jwtUtil.extractRole(refreshToken);
-            Long userId = jwtUtil.extractUserId(refreshToken);
-
-            return jwtUtil.generateAccessToken(userId, email, role);
-        }
-        throw new InvalidTokenException("Недействительный refresh token");
-    }
 }
