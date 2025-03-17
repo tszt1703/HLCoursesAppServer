@@ -72,6 +72,34 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/id/{id}")
+    public ResponseEntity<UserDTO> getUserById(
+            @PathVariable Long id,
+            @RequestParam String role) {
+        logger.info("Получен запрос на получение пользователя с ID: {} и ролью: {}", id, role);
+
+        if (role.equals("Specialist")) {
+            try {
+                Specialist specialist = specialistService.getUserById(id);
+                return ResponseEntity.ok(userMapper.toUserDTO(specialist, "Specialist"));
+            } catch (RuntimeException e) {
+                logger.warn("Специалист с ID: {} не найден", id);
+                return ResponseEntity.notFound().build();
+            }
+        } else if (role.equals("Listener")) {
+            try {
+                Listener listener = listenerService.getUserById(id);
+                return ResponseEntity.ok(userMapper.toUserDTO(listener, "Listener"));
+            } catch (RuntimeException e) {
+                logger.warn("Слушатель с ID: {} не найден", id);
+                return ResponseEntity.notFound().build();
+            }
+        }
+
+        logger.warn("Некорректная роль: {} для ID: {}", role, id);
+        return ResponseEntity.badRequest().body(null);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable Long id,
@@ -133,18 +161,22 @@ public class UserController {
             @RequestBody String newEmail,
             @RequestHeader("email") String currentEmail,
             @RequestParam String role) {
+        logger.info("Получен новый email: {}", newEmail); // Логируем входные данные
+
+        // Очищаем кавычки, если они есть
+        String cleanedEmail = newEmail.replace("\"", "").trim();
 
         if (role.equals("Specialist")) {
             if (!specialistService.isUserAuthorizedToUpdate(id, currentEmail)) {
                 return ResponseEntity.status(403).build();
             }
-            specialistService.updateEmail(id, newEmail);
+            specialistService.updateEmail(id, cleanedEmail);
             return ResponseEntity.ok(Map.of("message", "Email успешно обновлен."));
         } else if (role.equals("Listener")) {
             if (!listenerService.isUserAuthorizedToUpdate(id, currentEmail)) {
                 return ResponseEntity.status(403).build();
             }
-            listenerService.updateEmail(id, newEmail);
+            listenerService.updateEmail(id, cleanedEmail);
             return ResponseEntity.ok(Map.of("message", "Email успешно обновлен."));
         }
         return ResponseEntity.badRequest().build();
