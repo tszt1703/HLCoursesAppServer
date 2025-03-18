@@ -2,7 +2,10 @@ package org.example.hlcoursesappserver.controller;
 
 import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.model.*;
+import org.example.hlcoursesappserver.service.CourseApplicationService;
 import org.example.hlcoursesappserver.service.CourseService;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,17 +15,26 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/courses")
 @Validated
 public class CourseController {
 
-    private final CourseService courseService;
+    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
-    public CourseController(CourseService courseService) {
+
+    private final CourseService courseService;
+    private final CourseApplicationService applicationService;
+
+    @Autowired
+    public CourseController(CourseService courseService, CourseApplicationService applicationService) {
         this.courseService = courseService;
+        this.applicationService = applicationService;
     }
 
     /**
@@ -402,5 +414,50 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Ошибка при получении курса: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/{courseId}/apply")
+    public ResponseEntity<?> applyForCourse(
+            @PathVariable Long courseId,
+            @RequestHeader("userId") Long listenerId) {
+        logger.info("Получена заявка на курс ID: {} от слушателя ID: {}", courseId, listenerId);
+
+        try {
+            CourseApplication application = applicationService.applyForCourse(listenerId, courseId);
+            return ResponseEntity.ok(Map.of("message", "Заявка успешно подана", "applicationId", application.getId()));
+        } catch (RuntimeException e) {
+            logger.error("Ошибка при подаче заявки: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/applications/{applicationId}/status")
+    public ResponseEntity<?> updateApplicationStatus(
+            @PathVariable Long applicationId,
+            @RequestHeader("email") String specialistEmail,
+            @RequestBody Map<String, String> statusBody) {
+        logger.info("Запрос на обновление статуса заявки ID: {} от специалиста: {}", applicationId, specialistEmail);
+
+        try {
+            CourseApplication.ApplicationStatus newStatus = CourseApplication.ApplicationStatus.valueOf(statusBody.get("status"));
+            CourseApplication updatedApplication = applicationService.updateApplicationStatus(applicationId, specialistEmail, newStatus);
+            return ResponseEntity.ok(Map.of("message", "Статус заявки обновлён", "status", updatedApplication.getStatus().toString()));
+        } catch (IllegalArgumentException e) {
+            logger.error("Некорректный статус: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Некорректный статус"));
+        } catch (RuntimeException e) {
+            logger.error("Ошибка при обновлении статуса: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{courseId}/applications/pending")
+    public ResponseEntity<List<CourseApplication>> getPendingApplications(
+            @PathVariable Long courseId,
+            @RequestHeader("email") String specialistEmail) {
+        logger.info("Запрос списка ожидающих заявок для курса ID: {} от специалиста: {}", courseId, specialistEmail);
+
+        List<CourseApplication> applications = applicationService.getPendingApplicationsForCourse(courseId);
+        return ResponseEntity.ok(applications);
     }
 }
