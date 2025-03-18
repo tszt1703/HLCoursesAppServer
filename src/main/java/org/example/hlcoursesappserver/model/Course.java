@@ -28,8 +28,8 @@ public class Course {
     private Integer durationDays;
     private String photoUrl;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR DEFAULT 'draft'")
-    private String status;
+    @Column(name = "status")
+    private String status = "draft"; // Значение по умолчанию
 
     @OneToMany(mappedBy = "courseId", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CourseModule> modules;
