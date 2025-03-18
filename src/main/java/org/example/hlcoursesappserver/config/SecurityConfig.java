@@ -82,6 +82,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем все OPTIONS-запросы
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(additionalPublicEndpoints).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_GET_PATTERN).permitAll()
