@@ -2,6 +2,8 @@ package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "listeners")
@@ -17,6 +19,17 @@ public class Listener {
     private LocalDate birthDate;
     private String profilePhotoUrl;
     private String description;
+
+    @OneToMany(mappedBy = "listenerId")
+    private List<CourseApplication> applications;
+
+    @ManyToMany
+    @JoinTable(
+            name = "listener_favorite_courses",
+            joinColumns = @JoinColumn(name = "listener_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> favoriteCourses = new ArrayList<>();
 
     public Listener() {
     }
@@ -92,6 +105,12 @@ public class Listener {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public List<CourseApplication> getApplications() { return applications; }
+    public void setApplications(List<CourseApplication> applications) { this.applications = applications; }
+    public List<Course> getFavoriteCourses() { return favoriteCourses; }
+    public void setFavoriteCourses(List<Course> favoriteCourses) { this.favoriteCourses = favoriteCourses; }
+
 
 
     @Override

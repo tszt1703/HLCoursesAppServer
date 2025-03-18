@@ -134,3 +134,11 @@ CREATE TABLE course_applications (
                                      FOREIGN KEY (listener_id) REFERENCES listeners(listener_id),
                                      FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
+
+CREATE TABLE listener_favorite_courses (
+                                           listener_id BIGINT NOT NULL,
+                                           course_id BIGINT NOT NULL,
+                                           PRIMARY KEY (listener_id, course_id),
+                                           FOREIGN KEY (listener_id) REFERENCES listeners(listener_id),
+                                           FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);

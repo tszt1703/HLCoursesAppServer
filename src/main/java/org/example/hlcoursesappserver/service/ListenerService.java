@@ -1,5 +1,6 @@
 package org.example.hlcoursesappserver.service;
 
+import org.example.hlcoursesappserver.model.Course;
 import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.repository.ListenerRepository;
 import org.example.hlcoursesappserver.util.JwtUtil;
@@ -15,13 +16,14 @@ import java.util.Optional;
 public class ListenerService implements UserService<Listener> {
 
     private final ListenerRepository listenerRepository;
-
+    private final CourseService courseService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public ListenerService(ListenerRepository listenerRepository, JwtUtil jwtUtil) {
+    public ListenerService(ListenerRepository listenerRepository, CourseService courseService, JwtUtil jwtUtil) {
         this.listenerRepository = listenerRepository;
+        this.courseService = courseService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -124,4 +126,36 @@ public class ListenerService implements UserService<Listener> {
         listenerRepository.save(listener);
         // Токены больше не генерируются
     }
+
+    public void addCourseToFavorites(Long listenerId, Long courseId) {
+        Listener listener = getUserById(listenerId);
+        Course course = courseService.getCourseWithDetails(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (listener.getFavoriteCourses().contains(course)) {
+            throw new RuntimeException("Course is already in favorites");
+        }
+
+        listener.getFavoriteCourses().add(course);
+        listenerRepository.save(listener);
+    }
+
+    public void removeCourseFromFavorites(Long listenerId, Long courseId) {
+        Listener listener = getUserById(listenerId);
+        Course course = courseService.getCourseWithDetails(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!listener.getFavoriteCourses().contains(course)) {
+            throw new RuntimeException("Course is not in favorites");
+        }
+
+        listener.getFavoriteCourses().remove(course);
+        listenerRepository.save(listener);
+    }
+
+    public List<Course> getFavoriteCourses(Long listenerId) {
+        Listener listener = getUserById(listenerId);
+        return listener.getFavoriteCourses();
+    }
+
 }
