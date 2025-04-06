@@ -561,4 +561,28 @@ public class CourseController {
                     .body(Map.of("error", "Ошибка при получении списка прогресса: " + e.getMessage()));
         }
     }
+
+    // Новый эндпоинт для получения списка всех категорий
+    @GetMapping("/categories")
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            List<CourseCategory> categories = courseService.getAllCategories();
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при получении списка категорий: " + e.getMessage());
+        }
+    }
+
+    // Новый эндпоинт для получения названия категории по categoryId
+    @GetMapping("/categories/{categoryId}/name")
+    public ResponseEntity<?> getCategoryName(@PathVariable Long categoryId) {
+        try {
+            String categoryName = courseService.getCategoryNameById(categoryId);
+            return new ResponseEntity<>(categoryName, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при получении названия категории: " + e.getMessage());
+        }
+    }
 }

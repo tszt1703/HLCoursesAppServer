@@ -17,9 +17,9 @@ public class CourseService {
     private final CourseModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
     private final CourseCategoryRepository courseCategoryRepository;
-    private final TestRepository testRepository; // Новый репозиторий
-    private final QuestionRepository questionRepository; // Новый репозиторий
-    private final AnswerRepository answerRepository; // Новый репозиторий
+    private final TestRepository testRepository;
+    private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
     private final ProgressStatService progressStatService;
 
     public CourseService(CourseRepository courseRepository,
@@ -28,7 +28,8 @@ public class CourseService {
                          CourseCategoryRepository courseCategoryRepository,
                          TestRepository testRepository,
                          QuestionRepository questionRepository,
-                         AnswerRepository answerRepository, ProgressStatService progressStatService) {
+                         AnswerRepository answerRepository,
+                         ProgressStatService progressStatService) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.lessonRepository = lessonRepository;
@@ -37,6 +38,13 @@ public class CourseService {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.progressStatService = progressStatService;
+    }
+
+    // Получение названия категории по ID
+    public String getCategoryNameById(Long categoryId) {
+        return courseCategoryRepository.findById(categoryId)
+                .map(CourseCategory::getCategoryName)
+                .orElse("Неизвестная категория");
     }
 
     // Существующие методы остаются без изменений
@@ -93,11 +101,12 @@ public class CourseService {
             if (updateRequest.getDurationDays() != null) course.setDurationDays(updateRequest.getDurationDays());
             if (updateRequest.getPhotoUrl() != null) course.setPhotoUrl(updateRequest.getPhotoUrl());
 
-            return Optional.of(courseRepository.save(course));
+            Course updatedCourse = courseRepository.save(course);
+            Hibernate.initialize(updatedCourse.getModules()); // Инициализация коллекции
+            return Optional.of(updatedCourse);
         }
         return Optional.empty();
     }
-
 
     public CourseModule createModule(Long courseId, ModuleRequest moduleRequest) {
         CourseModule module = new CourseModule();
@@ -365,5 +374,10 @@ public class CourseService {
 
     public List<ProgressStat> getAllProgressForListener(Long listenerId) {
         return progressStatService.getAllProgressForListener(listenerId);
+    }
+
+    // Новый метод для получения списка всех категорий
+    public List<CourseCategory> getAllCategories() {
+        return courseCategoryRepository.findAll();
     }
 }
