@@ -20,6 +20,7 @@ public class CourseService {
     private final TestRepository testRepository; // Новый репозиторий
     private final QuestionRepository questionRepository; // Новый репозиторий
     private final AnswerRepository answerRepository; // Новый репозиторий
+    private final ProgressStatService progressStatService;
 
     public CourseService(CourseRepository courseRepository,
                          CourseModuleRepository moduleRepository,
@@ -27,7 +28,7 @@ public class CourseService {
                          CourseCategoryRepository courseCategoryRepository,
                          TestRepository testRepository,
                          QuestionRepository questionRepository,
-                         AnswerRepository answerRepository) {
+                         AnswerRepository answerRepository, ProgressStatService progressStatService) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.lessonRepository = lessonRepository;
@@ -35,6 +36,7 @@ public class CourseService {
         this.testRepository = testRepository;
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
+        this.progressStatService = progressStatService;
     }
 
     // Существующие методы остаются без изменений
@@ -296,5 +298,72 @@ public class CourseService {
             return Optional.of(course);
         }
         return Optional.empty();
+    }
+
+    @Transactional
+    public void completeLesson(Long listenerId, Long courseId, Long lessonId) {
+        Optional<ProgressStat> progressOpt = progressStatService.getProgressStat(listenerId, courseId);
+        if (progressOpt.isEmpty()) {
+            throw new IllegalStateException("Слушатель не записан на этот курс");
+        }
+
+        Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);
+        if (lessonOpt.isEmpty()) {
+            throw new IllegalArgumentException("Урок не найден");
+        }
+
+        Optional<Course> courseOpt = getCourseWithDetails(courseId);
+        if (courseOpt.isEmpty()) {
+            throw new IllegalArgumentException("Курс не найден");
+        }
+
+        Course course = courseOpt.get();
+        int totalLessons = course.getModules().stream()
+                .mapToInt(module -> module.getLessons().size())
+                .sum();
+        int totalTests = course.getModules().stream()
+                .flatMap(module -> module.getLessons().stream())
+                .mapToInt(lesson -> lesson.getTests().size())
+                .sum();
+
+        progressStatService.updateLessonCompleted(listenerId, courseId, lessonId, totalLessons, totalTests);
+    }
+
+    @Transactional
+    public void passTest(Long listenerId, Long courseId, Long testId) {
+        Optional<ProgressStat> progressOpt = progressStatService.getProgressStat(listenerId, courseId);
+        if (progressOpt.isEmpty()) {
+            throw new IllegalStateException("Слушатель не записан на этот курс");
+        }
+
+        Optional<Test> testOpt = testRepository.findById(testId);
+        if (testOpt.isEmpty()) {
+            throw new IllegalArgumentException("Тест не найден");
+        }
+
+        Optional<Course> courseOpt = getCourseWithDetails(courseId);
+        if (courseOpt.isEmpty()) {
+            throw new IllegalArgumentException("Курс не найден");
+        }
+
+        Course course = courseOpt.get();
+        int totalLessons = course.getModules().stream()
+                .mapToInt(module -> module.getLessons().size())
+                .sum();
+        int totalTests = course.getModules().stream()
+                .flatMap(module -> module.getLessons().stream())
+                .mapToInt(lesson -> lesson.getTests().size())
+                .sum();
+
+        progressStatService.updateTestPassed(listenerId, courseId, testId, totalLessons, totalTests);
+    }
+
+    // Делегирующие методы
+    public Optional<ProgressStat> getProgressStat(Long listenerId, Long courseId) {
+        return progressStatService.getProgressStat(listenerId, courseId);
+    }
+
+    public List<ProgressStat> getAllProgressForListener(Long listenerId) {
+        return progressStatService.getAllProgressForListener(listenerId);
     }
 }

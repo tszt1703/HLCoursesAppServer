@@ -460,4 +460,105 @@ public class CourseController {
         List<CourseApplication> applications = applicationService.getPendingApplicationsForCourse(courseId);
         return ResponseEntity.ok(applications);
     }
+
+    /**
+     * Эндпоинт для отметки завершения урока слушателем
+     */
+    @PostMapping("/{courseId}/lessons/{lessonId}/complete")
+    public ResponseEntity<?> completeLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long lessonId,
+            @RequestHeader("userId") Long listenerId) {
+        logger.info("Запрос на завершение урока ID: {} для курса ID: {} от слушателя ID: {}",
+                lessonId, courseId, listenerId);
+
+        try {
+            courseService.completeLesson(listenerId, courseId, lessonId);
+            return ResponseEntity.ok(Map.of("message", "Урок успешно завершён"));
+        } catch (IllegalStateException e) {
+            logger.error("Ошибка: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            logger.error("Ошибка: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Ошибка при завершении урока: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при завершении урока: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Эндпоинт для отметки прохождения теста слушателем
+     */
+    @PostMapping("/{courseId}/tests/{testId}/pass")
+    public ResponseEntity<?> passTest(
+            @PathVariable Long courseId,
+            @PathVariable Long testId,
+            @RequestHeader("userId") Long listenerId) {
+        logger.info("Запрос на прохождение теста ID: {} для курса ID: {} от слушателя ID: {}",
+                testId, courseId, listenerId);
+
+        try {
+            courseService.passTest(listenerId, courseId, testId);
+            return ResponseEntity.ok(Map.of("message", "Тест успешно пройден"));
+        } catch (IllegalStateException e) {
+            logger.error("Ошибка: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            logger.error("Ошибка: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Ошибка при прохождении теста: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при прохождении теста: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Эндпоинт для получения статистики прогресса слушателя по курсу
+     */
+    @GetMapping("/{courseId}/progress")
+    public ResponseEntity<?> getProgressStat(
+            @PathVariable Long courseId,
+            @RequestHeader("userId") Long listenerId) {
+        logger.info("Запрос статистики прогресса для курса ID: {} от слушателя ID: {}",
+                courseId, listenerId);
+
+        try {
+            Optional<ProgressStat> progressOpt = courseService.getProgressStat(listenerId, courseId);
+            if (progressOpt.isPresent()) {
+                return new ResponseEntity<>(progressOpt.get(), HttpStatus.OK);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Статистика для данного курса и слушателя не найдена"));
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении статистики: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении статистики: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Эндпоинт для получения списка всех курсов слушателя с их прогрессом
+     */
+    @GetMapping("/my-progress")
+    public ResponseEntity<?> getAllProgressForListener(
+            @RequestHeader("userId") Long listenerId) {
+        logger.info("Запрос списка прогресса всех курсов для слушателя ID: {}", listenerId);
+
+        try {
+            List<ProgressStat> progressList = courseService.getAllProgressForListener(listenerId);
+            return new ResponseEntity<>(progressList, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении списка прогресса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении списка прогресса: " + e.getMessage()));
+        }
+    }
 }
