@@ -661,4 +661,169 @@ public class CourseController {
                     .body(Map.of("error", "Ошибка при получении списка опубликованных курсов: " + e.getMessage()));
         }
     }
+
+    // Получение всех модулей курса
+    @GetMapping("/{courseId}/modules")
+    public ResponseEntity<?> getModulesByCourseId(@PathVariable Long courseId) {
+        try {
+            List<CourseModule> modules = courseService.getModulesByCourseId(courseId);
+            if (modules.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Модули для курса с ID " + courseId + " не найдены"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(modules, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении модулей курса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении модулей: " + e.getMessage()));
+        }
+    }
+
+    // Получение модуля по ID
+    @GetMapping("/{courseId}/modules/{moduleId}")
+    public ResponseEntity<?> getModuleById(@PathVariable Long courseId, @PathVariable Long moduleId) {
+        try {
+            Optional<CourseModule> moduleOpt = courseService.getModuleById(moduleId);
+            if (moduleOpt.isPresent()) {
+                return new ResponseEntity<>(moduleOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Модуль с ID " + moduleId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении модуля: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении модуля: " + e.getMessage()));
+        }
+    }
+
+    // Получение всех уроков модуля
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons")
+    public ResponseEntity<?> getLessonsByModuleId(@PathVariable Long courseId, @PathVariable Long moduleId) {
+        try {
+            List<Lesson> lessons = courseService.getLessonsByModuleId(moduleId);
+            if (lessons.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Уроки для модуля с ID " + moduleId + " не найдены"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(lessons, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении уроков модуля: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении уроков: " + e.getMessage()));
+        }
+    }
+
+    // Получение урока по ID
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<?> getLessonById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId) {
+        try {
+            Optional<Lesson> lessonOpt = courseService.getLessonById(lessonId);
+            if (lessonOpt.isPresent()) {
+                return new ResponseEntity<>(lessonOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Урок с ID " + lessonId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении урока: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении урока: " + e.getMessage()));
+        }
+    }
+
+    // Получение всех тестов урока
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
+    public ResponseEntity<?> getTestsByLessonId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId) {
+        try {
+            List<Test> tests = courseService.getTestsByLessonId(lessonId);
+            if (tests.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Тесты для урока с ID " + lessonId + " не найдены"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(tests, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении тестов урока: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении тестов: " + e.getMessage()));
+        }
+    }
+
+    // Получение теста по ID
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
+    public ResponseEntity<?> getTestById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId) {
+        try {
+            Optional<Test> testOpt = courseService.getTestById(testId);
+            if (testOpt.isPresent()) {
+                return new ResponseEntity<>(testOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Тест с ID " + testId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении теста: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении теста: " + e.getMessage()));
+        }
+    }
+
+    // Получение всех вопросов теста
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
+    public ResponseEntity<?> getQuestionsByTestId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId) {
+        try {
+            List<Question> questions = courseService.getQuestionsByTestId(testId);
+            if (questions.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Вопросы для теста с ID " + testId + " не найдены"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(questions, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении вопросов теста: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении вопросов: " + e.getMessage()));
+        }
+    }
+
+    // Получение вопроса по ID
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
+    public ResponseEntity<?> getQuestionById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId) {
+        try {
+            Optional<Question> questionOpt = courseService.getQuestionById(questionId);
+            if (questionOpt.isPresent()) {
+                return new ResponseEntity<>(questionOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Вопрос с ID " + questionId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении вопроса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении вопроса: " + e.getMessage()));
+        }
+    }
+
+    // Получение всех ответов на вопрос
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers")
+    public ResponseEntity<?> getAnswersByQuestionId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId) {
+        try {
+            List<Answer> answers = courseService.getAnswersByQuestionId(questionId);
+            if (answers.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Ответы для вопроса с ID " + questionId + " не найдены"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(answers, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении ответов на вопрос: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении ответов: " + e.getMessage()));
+        }
+    }
+
+    // Получение ответа по ID
+    @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
+    public ResponseEntity<?> getAnswerById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId, @PathVariable Long answerId) {
+        try {
+            Optional<Answer> answerOpt = courseService.getAnswerById(answerId);
+            if (answerOpt.isPresent()) {
+                return new ResponseEntity<>(answerOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Ответ с ID " + answerId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при получении ответа: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении ответа: " + e.getMessage()));
+        }
+    }
 }

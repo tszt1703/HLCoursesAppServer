@@ -506,4 +506,64 @@ public class CourseService {
         });
         return courses;
     }
+
+    // Получение всех модулей курса
+    @Transactional
+    public List<CourseModule> getModulesByCourseId(Long courseId) {
+        return moduleRepository.findByCourseId(courseId);
+    }
+
+    // Получение модуля по ID
+    @Transactional
+    public Optional<CourseModule> getModuleById(Long moduleId) {
+        return moduleRepository.findById(moduleId);
+    }
+
+    // Получение всех уроков модуля
+    @Transactional
+    public List<Lesson> getLessonsByModuleId(Long moduleId) {
+        return lessonRepository.findByModuleId(moduleId);
+    }
+
+    // Получение урока по ID
+    @Transactional
+    public Optional<Lesson> getLessonById(Long lessonId) {
+        return lessonRepository.findById(lessonId);
+    }
+
+    // Получение всех тестов урока
+    @Transactional
+    public List<Test> getTestsByLessonId(Long lessonId) {
+        return testRepository.findByLessonId(lessonId);
+    }
+
+    // Получение теста по ID
+    @Transactional
+    public Optional<Test> getTestById(Long testId) {
+        return testRepository.findById(testId);
+    }
+
+    // Получение всех вопросов теста
+    @Transactional
+    public List<Question> getQuestionsByTestId(Long testId) {
+        return questionRepository.findByTestId(testId);
+    }
+
+    // Получение вопроса по ID
+    @Transactional
+    public Optional<Question> getQuestionById(Long questionId) {
+        return questionRepository.findById(questionId);
+    }
+
+    // Получение всех ответов на вопрос
+    @Transactional
+    public List<Answer> getAnswersByQuestionId(Long questionId) {
+        return answerRepository.findByQuestionId(questionId);
+    }
+
+    // Получение ответа по ID
+    @Transactional
+    public Optional<Answer> getAnswerById(Long answerId) {
+        return answerRepository.findById(answerId);
+    }
 }
