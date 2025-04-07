@@ -31,7 +31,7 @@ public class Course {
     @Column(name = "status")
     private String status = "draft"; // Значение по умолчанию
 
-    @OneToMany(mappedBy = "courseId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "courseId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<CourseModule> modules;
 
     // Getters and setters

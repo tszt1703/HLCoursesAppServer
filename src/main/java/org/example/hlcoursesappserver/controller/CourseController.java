@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/courses")
@@ -583,6 +582,83 @@ public class CourseController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Ошибка при получении названия категории: " + e.getMessage());
+        }
+    }
+
+    // Новый эндпоинт для получения списка курсов специалиста
+    @GetMapping("/specialist")
+    public ResponseEntity<?> getCoursesBySpecialist(@RequestHeader("userId") Long specialistId) {
+        try {
+            logger.info("Запрос списка курсов для специалиста ID: {}", specialistId);
+            List<Course> courses = courseService.getCoursesBySpecialistId(specialistId);
+            if (courses.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "У специалиста нет созданных курсов"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(courses, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении списка курсов специалиста: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении списка курсов: " + e.getMessage()));
+        }
+    }
+
+    // Новый эндпоинт для публикации курса
+    @PutMapping("/{courseId}/publish")
+    public ResponseEntity<?> publishCourse(@PathVariable Long courseId) {
+        logger.info("Запрос на публикацию курса ID: {}", courseId);
+        try {
+            Optional<Course> publishedCourseOpt = courseService.publishCourse(courseId);
+            if (publishedCourseOpt.isPresent()) {
+                return new ResponseEntity<>(publishedCourseOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Курс с ID " + courseId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalStateException e) {
+            logger.error("Ошибка при публикации курса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Ошибка при публикации курса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при публикации курса: " + e.getMessage()));
+        }
+    }
+
+    // Новый эндпоинт для отмены публикации курса
+    @PutMapping("/{courseId}/unpublish")
+    public ResponseEntity<?> unpublishCourse(@PathVariable Long courseId) {
+        logger.info("Запрос на отмену публикации курса ID: {}", courseId);
+        try {
+            Optional<Course> unpublishedCourseOpt = courseService.unpublishCourse(courseId);
+            if (unpublishedCourseOpt.isPresent()) {
+                return new ResponseEntity<>(unpublishedCourseOpt.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Курс с ID " + courseId + " не найден", HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalStateException e) {
+            logger.error("Ошибка при отмене публикации курса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Ошибка при отмене публикации курса: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при отмене публикации курса: " + e.getMessage()));
+        }
+    }
+
+    // Новый эндпоинт для получения списка опубликованных курсов
+    @GetMapping("/published")
+    public ResponseEntity<?> getPublishedCourses() {
+        try {
+            List<Course> publishedCourses = courseService.getPublishedCourses();
+            if (publishedCourses.isEmpty()) {
+                return new ResponseEntity<>(Map.of("message", "Нет опубликованных курсов"), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(publishedCourses, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Ошибка при получении списка опубликованных курсов: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Ошибка при получении списка опубликованных курсов: " + e.getMessage()));
         }
     }
 }

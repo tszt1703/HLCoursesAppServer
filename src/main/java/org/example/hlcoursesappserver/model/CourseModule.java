@@ -24,7 +24,7 @@ public class CourseModule {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer position;
 
-    @OneToMany(mappedBy = "moduleId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "moduleId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Lesson> lessons;
 
     // Getters and Setters

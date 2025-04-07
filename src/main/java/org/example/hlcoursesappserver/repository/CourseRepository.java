@@ -24,6 +24,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // Фильтрация по времени прохождения
     List<Course> findByDurationDays(Integer durationDays);
 
+    List<Course> findBySpecialistId(Long specialistId);
+
+    List<Course> findByStatus(String status);
+
     // Комбинированная фильтрация с необязательными параметрами
     @Query("SELECT c FROM Course c WHERE " +
             "(:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND " +

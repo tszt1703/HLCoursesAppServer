@@ -18,7 +18,7 @@ public class Question {
     @Column(nullable = false)
     private String questionText;
 
-    @OneToMany(mappedBy = "questionId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "questionId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Answer> answers;
 
     // Getters and Setters

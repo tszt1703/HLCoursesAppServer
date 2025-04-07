@@ -24,7 +24,7 @@ public class Lesson {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer position;
 
-    @OneToMany(mappedBy = "lessonId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "lessonId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Test> tests;
 
     // Getters and setters

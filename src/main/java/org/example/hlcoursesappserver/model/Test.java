@@ -16,7 +16,7 @@ public class Test {
 
     private String title;
 
-    @OneToMany(mappedBy = "testId", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "testId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Question> questions;
 
     // Getters and Setters

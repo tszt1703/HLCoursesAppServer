@@ -5,6 +5,7 @@ import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.repository.*;
 import org.hibernate.Hibernate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,35 @@ public class CourseService {
         this.answerRepository = answerRepository;
         this.progressStatService = progressStatService;
     }
+
+    // Получение списка курсов специалиста
+    @Transactional
+    public List<Course> getCoursesBySpecialistId(Long specialistId) {
+        List<Course> courses = courseRepository.findBySpecialistId(specialistId);
+        courses.forEach(course -> {
+            Hibernate.initialize(course.getModules());
+            if (course.getModules() != null) {
+                course.getModules().forEach(module -> {
+                    Hibernate.initialize(module.getLessons());
+                    if (module.getLessons() != null) {
+                        module.getLessons().forEach(lesson -> {
+                            Hibernate.initialize(lesson.getTests());
+                            if (lesson.getTests() != null) {
+                                lesson.getTests().forEach(test -> {
+                                    Hibernate.initialize(test.getQuestions());
+                                    if (test.getQuestions() != null) {
+                                        test.getQuestions().forEach(question -> Hibernate.initialize(question.getAnswers()));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        return courses;
+    }
+
 
     // Получение названия категории по ID
     public String getCategoryNameById(Long categoryId) {
@@ -108,12 +138,33 @@ public class CourseService {
         return Optional.empty();
     }
 
+    @Transactional
     public CourseModule createModule(Long courseId, ModuleRequest moduleRequest) {
+        // Проверяем существование курса
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (!courseOpt.isPresent()) {
+            throw new DataIntegrityViolationException("Курс с ID " + courseId + " не существует");
+        }
+        Course course = courseOpt.get();
+
+        // Создаем новый модуль
         CourseModule module = new CourseModule();
-        module.setCourseId(courseId);
+        module.setCourseId(courseId);// Связываем модуль с курсом
         module.setTitle(moduleRequest.getTitle());
         module.setDescription(moduleRequest.getDescription());
-        module.setPosition(moduleRequest.getPosition());
+
+        // Определяем позицию
+        List<CourseModule> existingModules = moduleRepository.findByCourseId(courseId);
+        int newPosition = 1; // По умолчанию 1, если модулей нет
+        if (existingModules != null && !existingModules.isEmpty()) {
+            newPosition = existingModules.stream()
+                    .mapToInt(CourseModule::getPosition)
+                    .max()
+                    .orElse(0) + 1;
+        }
+        module.setPosition(newPosition);
+
+        // Сохраняем модуль
         return moduleRepository.save(module);
     }
 
@@ -379,5 +430,60 @@ public class CourseService {
     // Новый метод для получения списка всех категорий
     public List<CourseCategory> getAllCategories() {
         return courseCategoryRepository.findAll();
+    }
+
+    @Transactional
+    public Optional<Course> publishCourse(Long courseId) {
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isPresent()) {
+            Course course = courseOpt.get();
+            course.setStatus("published");
+            Course publishedCourse = courseRepository.save(course);
+            return Optional.of(publishedCourse);
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Course> unpublishCourse(Long courseId) {
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isPresent()) {
+            Course course = courseOpt.get();
+            if (course.getStatus().equals("draft")) {
+                throw new IllegalStateException("Курс уже находится в статусе черновика");
+            }
+            course.setStatus("draft");
+            Course unpublishedCourse = courseRepository.save(course);
+            return Optional.of(unpublishedCourse);
+        }
+        return Optional.empty();
+    }
+
+    // Получение списка опубликованных курсов
+    @Transactional
+    public List<Course> getPublishedCourses() {
+        List<Course> courses = courseRepository.findByStatus("published");
+        courses.forEach(course -> {
+            Hibernate.initialize(course.getModules());
+            if (course.getModules() != null) {
+                course.getModules().forEach(module -> {
+                    Hibernate.initialize(module.getLessons());
+                    if (module.getLessons() != null) {
+                        module.getLessons().forEach(lesson -> {
+                            Hibernate.initialize(lesson.getTests());
+                            if (lesson.getTests() != null) {
+                                lesson.getTests().forEach(test -> {
+                                    Hibernate.initialize(test.getQuestions());
+                                    if (test.getQuestions() != null) {
+                                        test.getQuestions().forEach(question -> Hibernate.initialize(question.getAnswers()));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        return courses;
     }
 }
