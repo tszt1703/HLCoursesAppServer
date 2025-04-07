@@ -10,7 +10,6 @@ public class ModuleRequest {
 
     private String description;
 
-    @NotNull(message = "Позиция модуля обязательна")
     private Integer position;
 
     public ModuleRequest() {

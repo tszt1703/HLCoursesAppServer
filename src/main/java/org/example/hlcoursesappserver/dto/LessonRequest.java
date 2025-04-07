@@ -14,7 +14,6 @@ public class LessonRequest {
     private String photoUrl;
     private String videoUrl;
 
-    @NotNull(message = "Позиция урока обязательна")
     private Integer position;
 
     public LessonRequest() {

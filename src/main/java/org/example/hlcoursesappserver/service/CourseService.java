@@ -168,14 +168,34 @@ public class CourseService {
         return moduleRepository.save(module);
     }
 
+    @Transactional
     public Lesson createLesson(Long moduleId, LessonRequest lessonRequest) {
+        // Проверяем существование модуля
+        Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
+        if (!moduleOpt.isPresent()) {
+            throw new DataIntegrityViolationException("Модуль с ID " + moduleId + " не существует");
+        }
+
+        // Создаем новый урок
         Lesson lesson = new Lesson();
-        lesson.setModuleId(moduleId);
+        lesson.setModuleId(moduleId); // Связываем урок с модулем
         lesson.setTitle(lessonRequest.getTitle());
         lesson.setContent(lessonRequest.getContent());
         lesson.setPhotoUrl(lessonRequest.getPhotoUrl());
         lesson.setVideoUrl(lessonRequest.getVideoUrl());
-        lesson.setPosition(lessonRequest.getPosition());
+
+        // Определяем позицию
+        List<Lesson> existingLessons = lessonRepository.findByModuleId(moduleId);
+        int newPosition = 1; // По умолчанию 1, если уроков нет
+        if (existingLessons != null && !existingLessons.isEmpty()) {
+            newPosition = existingLessons.stream()
+                    .mapToInt(Lesson::getPosition)
+                    .max()
+                    .orElse(0) + 1;
+        }
+        lesson.setPosition(newPosition);
+
+        // Сохраняем урок
         return lessonRepository.save(lesson);
     }
 
