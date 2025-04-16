@@ -2,6 +2,9 @@ package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // Таблица для категорий курсов
 @Entity
 @Table(name = "course_categories")
@@ -12,6 +15,9 @@ public class CourseCategory {
 
     @Column(nullable = false)
     private String categoryName;
+
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    private List<Course> courses = new ArrayList<>();
 
     // Getters and setters
 
@@ -29,6 +35,14 @@ public class CourseCategory {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
     }
 
     public CourseCategory() {

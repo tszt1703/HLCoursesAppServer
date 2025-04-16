@@ -8,8 +8,10 @@ import org.hibernate.Hibernate;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -46,6 +48,7 @@ public class CourseService {
     public List<Course> getCoursesBySpecialistId(Long specialistId) {
         List<Course> courses = courseRepository.findBySpecialistId(specialistId);
         courses.forEach(course -> {
+            Hibernate.initialize(course.getCategories());
             Hibernate.initialize(course.getModules());
             if (course.getModules() != null) {
                 course.getModules().forEach(module -> {
@@ -69,29 +72,29 @@ public class CourseService {
         return courses;
     }
 
+    // Удаляем метод getCategoryNameById, так как он больше не нужен
 
-    // Получение названия категории по ID
-    public String getCategoryNameById(Long categoryId) {
-        return courseCategoryRepository.findById(categoryId)
-                .map(CourseCategory::getCategoryName)
-                .orElse("Неизвестная категория");
-    }
-
-    // Существующие методы остаются без изменений
+    // Создание курса
     public Course createCourse(CourseRequest courseRequest, Long specialistId) {
-        Optional<CourseCategory> categoryOpt = courseCategoryRepository.findByCategoryName(courseRequest.getCategoryName());
-        CourseCategory category;
-
-        if (categoryOpt.isPresent()) {
-            category = categoryOpt.get();
-        } else {
-            category = new CourseCategory(courseRequest.getCategoryName());
-            category = courseCategoryRepository.save(category);
+        // Обрабатываем категории
+        List<CourseCategory> categories = new ArrayList<>();
+        if (courseRequest.getCategoryNames() != null && !courseRequest.getCategoryNames().isEmpty()) {
+            for (String categoryName : courseRequest.getCategoryNames()) {
+                // Ищем категорию по имени (игнорируя регистр)
+                CourseCategory category = courseCategoryRepository.findByCategoryNameIgnoreCase(categoryName)
+                        .orElseGet(() -> {
+                            // Если категория не найдена, создаём новую
+                            CourseCategory newCategory = new CourseCategory();
+                            newCategory.setCategoryName(categoryName);
+                            return courseCategoryRepository.save(newCategory);
+                        });
+                categories.add(category);
+            }
         }
 
         Course course = new Course();
         course.setSpecialistId(specialistId);
-        course.setCategoryId(category.getCategoryId());
+        course.setCategories(categories);
         course.setTitle(courseRequest.getTitle());
         course.setShortDescription(courseRequest.getShortDescription());
         course.setFullDescription(courseRequest.getFullDescription());
@@ -109,17 +112,26 @@ public class CourseService {
         if (courseOpt.isPresent()) {
             Course course = courseOpt.get();
 
-            // Проверка и обновление категории
-            if (updateRequest.getCategoryName() != null) {
-                Optional<CourseCategory> categoryOpt = courseCategoryRepository.findByCategoryName(updateRequest.getCategoryName());
-                CourseCategory category;
-                if (categoryOpt.isPresent()) {
-                    category = categoryOpt.get();
-                } else {
-                    category = new CourseCategory(updateRequest.getCategoryName());
-                    category = courseCategoryRepository.save(category);
+            // Обновление категорий
+            if (updateRequest.getCategoryNames() != null) {
+                List<CourseCategory> categories = new ArrayList<>();
+                if (!updateRequest.getCategoryNames().isEmpty()) {
+                    for (String categoryName : updateRequest.getCategoryNames()) {
+                        if (categoryName == null || categoryName.trim().isEmpty()) {
+                            continue; // Пропускаем пустые имена
+                        }
+                        // Ищем категорию по имени (игнорируя регистр)
+                        CourseCategory category = courseCategoryRepository.findByCategoryNameIgnoreCase(categoryName.trim())
+                                .orElseGet(() -> {
+                                    // Если категория не найдена, создаём новую
+                                    CourseCategory newCategory = new CourseCategory();
+                                    newCategory.setCategoryName(categoryName.trim());
+                                    return courseCategoryRepository.save(newCategory);
+                                });
+                        categories.add(category);
+                    }
                 }
-                course.setCategoryId(category.getCategoryId());
+                course.setCategories(categories);
             }
 
             // Обновление остальных полей
@@ -132,7 +144,8 @@ public class CourseService {
             if (updateRequest.getPhotoUrl() != null) course.setPhotoUrl(updateRequest.getPhotoUrl());
 
             Course updatedCourse = courseRepository.save(course);
-            Hibernate.initialize(updatedCourse.getModules()); // Инициализация коллекции
+            Hibernate.initialize(updatedCourse.getModules());
+            Hibernate.initialize(updatedCourse.getCategories());
             return Optional.of(updatedCourse);
         }
         return Optional.empty();
@@ -140,22 +153,19 @@ public class CourseService {
 
     @Transactional
     public CourseModule createModule(Long courseId, ModuleRequest moduleRequest) {
-        // Проверяем существование курса
         Optional<Course> courseOpt = courseRepository.findById(courseId);
-        if (!courseOpt.isPresent()) {
+        if (courseOpt.isEmpty()) {
             throw new DataIntegrityViolationException("Курс с ID " + courseId + " не существует");
         }
         Course course = courseOpt.get();
 
-        // Создаем новый модуль
         CourseModule module = new CourseModule();
-        module.setCourseId(courseId);// Связываем модуль с курсом
+        module.setCourseId(courseId);
         module.setTitle(moduleRequest.getTitle());
         module.setDescription(moduleRequest.getDescription());
 
-        // Определяем позицию
         List<CourseModule> existingModules = moduleRepository.findByCourseId(courseId);
-        int newPosition = 1; // По умолчанию 1, если модулей нет
+        int newPosition = 1;
         if (existingModules != null && !existingModules.isEmpty()) {
             newPosition = existingModules.stream()
                     .mapToInt(CourseModule::getPosition)
@@ -164,29 +174,25 @@ public class CourseService {
         }
         module.setPosition(newPosition);
 
-        // Сохраняем модуль
         return moduleRepository.save(module);
     }
 
     @Transactional
     public Lesson createLesson(Long moduleId, LessonRequest lessonRequest) {
-        // Проверяем существование модуля
         Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
-        if (!moduleOpt.isPresent()) {
+        if (moduleOpt.isEmpty()) {
             throw new DataIntegrityViolationException("Модуль с ID " + moduleId + " не существует");
         }
 
-        // Создаем новый урок
         Lesson lesson = new Lesson();
-        lesson.setModuleId(moduleId); // Связываем урок с модулем
+        lesson.setModuleId(moduleId);
         lesson.setTitle(lessonRequest.getTitle());
         lesson.setContent(lessonRequest.getContent());
         lesson.setPhotoUrl(lessonRequest.getPhotoUrl());
         lesson.setVideoUrl(lessonRequest.getVideoUrl());
 
-        // Определяем позицию
         List<Lesson> existingLessons = lessonRepository.findByModuleId(moduleId);
-        int newPosition = 1; // По умолчанию 1, если уроков нет
+        int newPosition = 1;
         if (existingLessons != null && !existingLessons.isEmpty()) {
             newPosition = existingLessons.stream()
                     .mapToInt(Lesson::getPosition)
@@ -195,11 +201,9 @@ public class CourseService {
         }
         lesson.setPosition(newPosition);
 
-        // Сохраняем урок
         return lessonRepository.save(lesson);
     }
 
-    // Новые методы для тестов
     public Test createTest(Long lessonId, TestRequest testRequest) {
         Test test = new Test();
         test.setLessonId(lessonId);
@@ -222,63 +226,55 @@ public class CourseService {
         return answerRepository.save(answer);
     }
 
-    // Метод для удаления курса
     public void deleteCourse(Long courseId) {
-        courseRepository.deleteById(courseId); // Каскадное удаление сработает автоматически
+        courseRepository.deleteById(courseId);
     }
 
-    // Новые методы для удаления отдельных сущностей
     @Transactional
     public void deleteModule(Long moduleId) {
-        // Проверяем существование модуля
         Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
         if (moduleOpt.isEmpty()) {
             throw new IllegalArgumentException("Модуль с ID " + moduleId + " не найден");
         }
-        moduleRepository.deleteById(moduleId); // Каскадное удаление уроков, тестов, вопросов и ответов
+        moduleRepository.deleteById(moduleId);
     }
 
     @Transactional
     public void deleteLesson(Long lessonId) {
-        // Проверяем существование урока
         Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);
         if (lessonOpt.isEmpty()) {
             throw new IllegalArgumentException("Урок с ID " + lessonId + " не найден");
         }
-        lessonRepository.deleteById(lessonId); // Каскадное удаление тестов, вопросов и ответов
+        lessonRepository.deleteById(lessonId);
     }
 
     @Transactional
     public void deleteTest(Long testId) {
-        // Проверяем существование теста
         Optional<Test> testOpt = testRepository.findById(testId);
         if (testOpt.isEmpty()) {
             throw new IllegalArgumentException("Тест с ID " + testId + " не найден");
         }
-        testRepository.deleteById(testId); // Каскадное удаление вопросов и ответов
+        testRepository.deleteById(testId);
     }
 
     @Transactional
     public void deleteQuestion(Long questionId) {
-        // Проверяем существование вопроса
         Optional<Question> questionOpt = questionRepository.findById(questionId);
         if (questionOpt.isEmpty()) {
             throw new IllegalArgumentException("Вопрос с ID " + questionId + " не найден");
         }
-        questionRepository.deleteById(questionId); // Каскадное удаление ответов
+        questionRepository.deleteById(questionId);
     }
 
     @Transactional
     public void deleteAnswer(Long answerId) {
-        // Проверяем существование ответа
         Optional<Answer> answerOpt = answerRepository.findById(answerId);
         if (answerOpt.isEmpty()) {
             throw new IllegalArgumentException("Ответ с ID " + answerId + " не найден");
         }
-        answerRepository.deleteById(answerId); // Просто удаляем ответ
+        answerRepository.deleteById(answerId);
     }
 
-    // Новые методы для обновления
     @Transactional
     public Optional<CourseModule> updateModule(Long moduleId, ModuleUpdateRequest updateRequest) {
         Optional<CourseModule> moduleOpt = moduleRepository.findById(moduleId);
@@ -341,21 +337,20 @@ public class CourseService {
         return Optional.empty();
     }
 
-    // Новые методы для поиска и фильтрации
     public List<Course> searchCoursesByTitle(String title) {
         return courseRepository.findByTitleContainingIgnoreCase(title);
     }
 
-    public List<Course> filterCourses(String title, String ageGroup, Long categoryId, String difficultyLevel, Integer durationDays) {
-        return courseRepository.findCoursesByFilters(title, ageGroup, categoryId, difficultyLevel, durationDays);
+    public List<Course> filterCourses(String title, String ageGroup, List<Long> categoryIds, String difficultyLevel, Integer durationDays) {
+        return courseRepository.findCoursesByFilters(title, ageGroup, categoryIds, difficultyLevel, durationDays);
     }
 
-    // Новый метод для получения полной информации о курсе
     @Transactional
     public Optional<Course> getCourseWithDetails(Long courseId) {
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isPresent()) {
             Course course = courseOpt.get();
+            Hibernate.initialize(course.getCategories());
             Hibernate.initialize(course.getModules());
             if (course.getModules() != null) {
                 course.getModules().forEach(module -> {
@@ -438,7 +433,6 @@ public class CourseService {
         progressStatService.updateTestPassed(listenerId, courseId, testId, totalLessons, totalTests);
     }
 
-    // Делегирующие методы
     public Optional<ProgressStat> getProgressStat(Long listenerId, Long courseId) {
         return progressStatService.getProgressStat(listenerId, courseId);
     }
@@ -447,7 +441,6 @@ public class CourseService {
         return progressStatService.getAllProgressForListener(listenerId);
     }
 
-    // Новый метод для получения списка всех категорий
     public List<CourseCategory> getAllCategories() {
         return courseCategoryRepository.findAll();
     }
@@ -479,11 +472,11 @@ public class CourseService {
         return Optional.empty();
     }
 
-    // Получение списка опубликованных курсов
     @Transactional
     public List<Course> getPublishedCourses() {
         List<Course> courses = courseRepository.findByStatus("published");
         courses.forEach(course -> {
+            Hibernate.initialize(course.getCategories());
             Hibernate.initialize(course.getModules());
             if (course.getModules() != null) {
                 course.getModules().forEach(module -> {
@@ -507,61 +500,51 @@ public class CourseService {
         return courses;
     }
 
-    // Получение всех модулей курса
     @Transactional
     public List<CourseModule> getModulesByCourseId(Long courseId) {
         return moduleRepository.findByCourseId(courseId);
     }
 
-    // Получение модуля по ID
     @Transactional
     public Optional<CourseModule> getModuleById(Long moduleId) {
         return moduleRepository.findById(moduleId);
     }
 
-    // Получение всех уроков модуля
     @Transactional
     public List<Lesson> getLessonsByModuleId(Long moduleId) {
         return lessonRepository.findByModuleId(moduleId);
     }
 
-    // Получение урока по ID
     @Transactional
     public Optional<Lesson> getLessonById(Long lessonId) {
         return lessonRepository.findById(lessonId);
     }
 
-    // Получение всех тестов урока
     @Transactional
     public List<Test> getTestsByLessonId(Long lessonId) {
         return testRepository.findByLessonId(lessonId);
     }
 
-    // Получение теста по ID
     @Transactional
     public Optional<Test> getTestById(Long testId) {
         return testRepository.findById(testId);
     }
 
-    // Получение всех вопросов теста
     @Transactional
     public List<Question> getQuestionsByTestId(Long testId) {
         return questionRepository.findByTestId(testId);
     }
 
-    // Получение вопроса по ID
     @Transactional
     public Optional<Question> getQuestionById(Long questionId) {
         return questionRepository.findById(questionId);
     }
 
-    // Получение всех ответов на вопрос
     @Transactional
     public List<Answer> getAnswersByQuestionId(Long questionId) {
         return answerRepository.findByQuestionId(questionId);
     }
 
-    // Получение ответа по ID
     @Transactional
     public Optional<Answer> getAnswerById(Long answerId) {
         return answerRepository.findById(answerId);

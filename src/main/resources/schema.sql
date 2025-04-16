@@ -8,7 +8,6 @@ CREATE TABLE course_categories (
 CREATE TABLE courses (
                          course_id SERIAL PRIMARY KEY,
                          specialist_id INT NOT NULL,
-                         category_id INT REFERENCES course_categories(category_id) ON DELETE SET NULL,
                          title VARCHAR NOT NULL,
                          short_description TEXT NOT NULL,
                          full_description TEXT NOT NULL,
@@ -18,6 +17,14 @@ CREATE TABLE courses (
                          photo_url VARCHAR,
                          status VARCHAR DEFAULT 'draft', -- Статус: draft, published, archived
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_category_mapping (
+                                         course_id BIGINT NOT NULL,
+                                         category_id BIGINT NOT NULL,
+                                         PRIMARY KEY (course_id, category_id),
+                                         FOREIGN KEY (course_id) REFERENCES courses(course_id),
+                                         FOREIGN KEY (category_id) REFERENCES course_categories(category_id)
 );
 
 -- Таблица для модулей курсов

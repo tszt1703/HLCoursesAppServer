@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 public class CourseDTO {
     private Long courseId;
     private Long specialistId;
-    private Long categoryId;
-    private String categoryName; // Новое поле
+    // private List<Long> categoryIds; // Список ID категорий
+    private List<String> categoryNames; // Список названий категорий
     private String title;
     private String shortDescription;
     private String fullDescription;
@@ -22,11 +22,15 @@ public class CourseDTO {
     private List<CourseModuleDTO> modules;
 
     // Конструктор для маппинга из Course
-    public CourseDTO(Course course, String categoryName) {
+    public CourseDTO(Course course) {
         this.courseId = course.getCourseId();
         this.specialistId = course.getSpecialistId();
-        this.categoryId = course.getCategoryId();
-        this.categoryName = categoryName;
+        //this.categoryIds = course.getCategories().stream()
+               // .map(category -> category.getCategoryId())
+                //.collect(Collectors.toList());
+        this.categoryNames = course.getCategories().stream()
+                .map(category -> category.getCategoryName())
+                .collect(Collectors.toList());
         this.title = course.getTitle();
         this.shortDescription = course.getShortDescription();
         this.fullDescription = course.getFullDescription();
@@ -47,10 +51,10 @@ public class CourseDTO {
     public void setCourseId(Long courseId) { this.courseId = courseId; }
     public Long getSpecialistId() { return specialistId; }
     public void setSpecialistId(Long specialistId) { this.specialistId = specialistId; }
-    public Long getCategoryId() { return categoryId; }
-    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
-    public String getCategoryName() { return categoryName; }
-    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+  //  public List<Long> getCategoryIds() { return categoryIds; }
+  //  public void setCategoryIds(List<Long> categoryIds) { this.categoryIds = categoryIds; }
+    public List<String> getCategoryNames() { return categoryNames; }
+    public void setCategoryNames(List<String> categoryNames) { this.categoryNames = categoryNames; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getShortDescription() { return shortDescription; }
@@ -70,4 +74,3 @@ public class CourseDTO {
     public List<CourseModuleDTO> getModules() { return modules; }
     public void setModules(List<CourseModuleDTO> modules) { this.modules = modules; }
 }
-

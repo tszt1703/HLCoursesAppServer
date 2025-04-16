@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
+import java.util.List;
+
 public class CourseUpdateRequest {
 
-    private String categoryName; // Заменяем categoryId на categoryName
+    private List<String> categoryNames; // Заменяем categoryIds на categoryNames
 
     @NotBlank(message = "Название курса обязательно")
     @Size(max = 255, message = "Название курса не должно превышать 255 символов")
@@ -32,10 +34,13 @@ public class CourseUpdateRequest {
     public CourseUpdateRequest() {
     }
 
-    // Геттеры и сеттеры
+    public List<String> getCategoryNames() {
+        return categoryNames;
+    }
 
-    public String getCategoryName() { return categoryName; }
-    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    public void setCategoryNames(List<String> categoryNames) {
+        this.categoryNames = categoryNames;
+    }
 
     public String getTitle() {
         return title;

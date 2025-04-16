@@ -15,9 +15,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // Фильтрация по возрасту
     List<Course> findByAgeGroup(String ageGroup);
 
-    // Фильтрация по категории
-    List<Course> findByCategoryId(Long categoryId);
-
     // Фильтрация по уровню сложности
     List<Course> findByDifficultyLevel(String difficultyLevel);
 
@@ -28,17 +25,16 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByStatus(String status);
 
-    // Комбинированная фильтрация с необязательными параметрами
-    @Query("SELECT c FROM Course c WHERE " +
-            "(:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND " +
-            "(:ageGroup IS NULL OR c.ageGroup = :ageGroup) AND " +
-            "(:categoryId IS NULL OR c.categoryId = :categoryId) AND " +
-            "(:difficultyLevel IS NULL OR c.difficultyLevel = :difficultyLevel) AND " +
-            "(:durationDays IS NULL OR c.durationDays = :durationDays)")
+    @Query("SELECT c FROM Course c " +
+            "WHERE (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
+            "AND (:ageGroup IS NULL OR c.ageGroup = :ageGroup) " +
+            "AND (:difficultyLevel IS NULL OR c.difficultyLevel = :difficultyLevel) " +
+            "AND (:durationDays IS NULL OR c.durationDays = :durationDays) " +
+            "AND (:categoryIds IS NULL OR EXISTS (SELECT 1 FROM c.categories cat WHERE cat.categoryId IN :categoryIds))")
     List<Course> findCoursesByFilters(
             @Param("title") String title,
             @Param("ageGroup") String ageGroup,
-            @Param("categoryId") Long categoryId,
+            @Param("categoryIds") List<Long> categoryIds,
             @Param("difficultyLevel") String difficultyLevel,
             @Param("durationDays") Integer durationDays);
 }

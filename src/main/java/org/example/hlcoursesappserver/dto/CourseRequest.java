@@ -5,13 +5,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
+import java.util.List;
+
 public class CourseRequest {
 
     @NotNull(message = "Идентификатор специалиста обязателен")
     private Long specialistId;
 
-    @Size(max = 255, message = "Название категории не должно превышать 255 символов")
-    private String categoryName; // Заменяем categoryId на categoryName
+//    @NotNull(message = "Список категорий обязателен")
+private List<String> categoryNames; // Заменяем categoryIds на categoryNames
 
     @Size(max = 255, message = "Название курса не должно превышать 255 символов")
     private String title;
@@ -22,13 +24,10 @@ public class CourseRequest {
 
     private String difficultyLevel;
 
-    // Поле ageGroup можно оставить опциональным
     private String ageGroup;
 
-    // Поле длительности курса (в днях) можно оставить опциональным
     private Integer durationDays;
 
-    //@URL(message = "Некорректный URL для фото")
     private String photoUrl;
 
     public CourseRequest() {
@@ -43,12 +42,12 @@ public class CourseRequest {
         this.specialistId = specialistId;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public List<String> getCategoryNames() {
+        return categoryNames;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategoryNames(List<String> categoryNames) {
+        this.categoryNames = categoryNames;
     }
 
     public String getTitle() {

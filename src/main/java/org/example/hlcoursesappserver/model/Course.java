@@ -2,6 +2,8 @@ package org.example.hlcoursesappserver.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,7 +16,7 @@ public class Course {
 
     private Long specialistId;
 
-    private Long categoryId;
+//    private Long categoryId; т. к будет несколько категорий
 
     private String title;
 
@@ -34,6 +36,15 @@ public class Course {
     @OneToMany(mappedBy = "courseId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<CourseModule> modules;
 
+    // Связь многие-ко-многим с категориями
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "course_category_mapping",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<CourseCategory> categories = new ArrayList<>();
+
     // Getters and setters
 
     public Long getCourseId() {
@@ -52,13 +63,13 @@ public class Course {
         this.specialistId = specialistId;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
+//    public Long getCategoryId() {
+//        return categoryId;
+//    }
+//
+//    public void setCategoryId(Long categoryId) {
+//        this.categoryId = categoryId;
+//    }
 
 
     public String getTitle() {
@@ -128,13 +139,19 @@ public class Course {
     public List<CourseModule> getModules() { return modules; }
     public void setModules(List<CourseModule> modules) { this.modules = modules; }
 
+    public List<CourseCategory> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<CourseCategory> categories) {
+        this.categories = categories;
+    }
 
     public Course() {
     }
 
-    public Course(Long specialistId, Long categoryId, String title, String shortDescription, String fullDescription, String difficultyLevel, String ageGroup, Integer durationDays, String photoUrl, String status) {
+    public Course(Long specialistId, String title, String shortDescription, String fullDescription, String difficultyLevel, String ageGroup, Integer durationDays, String photoUrl, String status) {
         this.specialistId = specialistId;
-        this.categoryId = categoryId;
         this.title = title;
         this.shortDescription = shortDescription;
         this.fullDescription = fullDescription;
@@ -158,6 +175,7 @@ public class Course {
                 ", durationDays=" + durationDays +
                 ", photoUrl='" + photoUrl + '\'' +
                 ", status='" + status + '\'' +
+                ", categories=" + categories +
                 '}';
     }
 
