@@ -1,131 +1,64 @@
-2025-04-16 21:53:36 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 27496 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
-2025-04-16 21:53:36 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
-2025-04-16 21:53:36 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-04-16 21:53:36 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-04-16 21:53:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-16 21:53:37 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 66 ms. Found 13 JPA repository interfaces.
-2025-04-16 21:53:38 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-16 21:53:38 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-16 21:53:38 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
-2025-04-16 21:53:38 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-16 21:53:38 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1725 ms
-2025-04-16 21:53:38 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
-2025-04-16 21:53:40 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@212112bf
-2025-04-16 21:53:40 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
-2025-04-16 21:53:40 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-16 21:53:40 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
-2025-04-16 21:53:41 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-16 21:53:41 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-16 21:53:45 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 21:53:46 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-16 21:53:46 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Инициализация сервиса Google Drive
-2025-04-16 21:53:46 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Сервис Google Drive успешно инициализирован
-2025-04-16 21:53:46 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2025-04-16 21:53:47 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
-2025-04-16 21:53:47 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-16 21:53:47 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Started HlCoursesAppServerApplication in 11.378 seconds (process running for 13.458)
-2025-04-16 22:13:50 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-16 22:13:50 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-16 22:13:50 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
-2025-04-16 22:13:50 [http-nio-8080-exec-1] ERROR o.e.h.config.JwtRequestFilter - Ошибка обработки JWT-токена: JWT expired at 2025-04-08T05:04:13Z. Current time: 2025-04-16T15:13:50Z, a difference of 727777499 milliseconds.  Allowed clock skew: 0 milliseconds.
-2025-04-16 22:13:53 [http-nio-8080-exec-2] INFO  o.e.h.controller.CourseController - Запрос списка курсов для специалиста ID: 21
-2025-04-16 22:14:01 [http-nio-8080-exec-4] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<?> org.example.hlcoursesappserver.controller.CourseController.createCourse(org.example.hlcoursesappserver.dto.CourseRequest): [Field error in object 'courseRequest' on field 'categoryIds': rejected value [null]; codes [NotNull.courseRequest.categoryIds,NotNull.categoryIds,NotNull.java.util.List,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [courseRequest.categoryIds,categoryIds]; arguments []; default message [categoryIds]]; default message [Список категорий обязателен]] ]
-2025-04-16 22:14:02 [http-nio-8080-exec-6] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<?> org.example.hlcoursesappserver.controller.CourseController.createCourse(org.example.hlcoursesappserver.dto.CourseRequest): [Field error in object 'courseRequest' on field 'categoryIds': rejected value [null]; codes [NotNull.courseRequest.categoryIds,NotNull.categoryIds,NotNull.java.util.List,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [courseRequest.categoryIds,categoryIds]; arguments []; default message [categoryIds]]; default message [Список категорий обязателен]] ]
-2025-04-16 22:14:08 [http-nio-8080-exec-2] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to flush: java.io.IOException: Программа на вашем хост-компьютере разорвала установленное подключение]
-2025-04-16 22:14:48 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 22:14:48 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
-2025-04-16 22:14:49 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.
-2025-04-16 22:14:54 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 3764 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
-2025-04-16 22:14:54 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
-2025-04-16 22:14:54 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-04-16 22:14:54 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-04-16 22:14:55 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-16 22:14:55 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 77 ms. Found 13 JPA repository interfaces.
-2025-04-16 22:14:56 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-16 22:14:56 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-16 22:14:56 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
-2025-04-16 22:14:56 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-16 22:14:56 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1467 ms
-2025-04-16 22:14:56 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
-2025-04-16 22:14:58 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@72df3ae5
-2025-04-16 22:14:58 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
-2025-04-16 22:14:58 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-16 22:14:59 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
-2025-04-16 22:14:59 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-16 22:14:59 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-16 22:15:03 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 22:15:04 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-16 22:15:04 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Инициализация сервиса Google Drive
-2025-04-16 22:15:04 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Сервис Google Drive успешно инициализирован
-2025-04-16 22:15:04 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2025-04-16 22:15:05 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
-2025-04-16 22:15:05 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-16 22:15:05 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Started HlCoursesAppServerApplication in 10.845 seconds (process running for 11.586)
-2025-04-16 22:15:16 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-16 22:15:16 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-16 22:15:16 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2025-04-16 22:16:39 [http-nio-8080-exec-4] INFO  o.e.h.controller.CourseController - Запрос списка курсов для специалиста ID: 21
-2025-04-16 22:16:56 [http-nio-8080-exec-4] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to flush: java.io.IOException: Программа на вашем хост-компьютере разорвала установленное подключение]
-2025-04-16 22:24:47 [http-nio-8080-exec-9] INFO  o.e.h.controller.CourseController - Запрос списка курсов для специалиста ID: 21
-2025-04-16 22:25:04 [http-nio-8080-exec-9] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to flush: java.io.IOException: Программа на вашем хост-компьютере разорвала установленное подключение]
-2025-04-16 22:28:57 [http-nio-8080-exec-5] INFO  o.e.h.controller.CourseController - Запрос списка курсов для специалиста ID: 21
-2025-04-16 22:29:16 [http-nio-8080-exec-5] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to flush: java.io.IOException: Программа на вашем хост-компьютере разорвала установленное подключение]
-2025-04-16 22:52:48 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 1 deletion, 1 modification)
-2025-04-16 22:52:48 [Thread-5] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 22:52:48 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
-2025-04-16 22:52:48 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.
-2025-04-16 22:52:49 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 3764 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
-2025-04-16 22:52:49 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
-2025-04-16 22:52:49 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-16 22:52:49 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 37 ms. Found 13 JPA repository interfaces.
-2025-04-16 22:52:49 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-16 22:52:49 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-16 22:52:49 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
-2025-04-16 22:52:49 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-16 22:52:49 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 589 ms
-2025-04-16 22:52:49 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
-2025-04-16 22:52:51 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@bbf1cef
-2025-04-16 22:52:51 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
-2025-04-16 22:52:51 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-16 22:52:51 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-16 22:52:52 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-16 22:52:55 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 22:52:55 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'courseController': Resolution of declared constructors on bean Class [org.example.hlcoursesappserver.controller.CourseController] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@18cf070d] failed
-2025-04-16 22:52:55 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 22:52:55 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
-2025-04-16 22:52:56 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.
-2025-04-16 23:39:26 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 12376 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
-2025-04-16 23:39:26 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
-2025-04-16 23:39:26 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-04-16 23:39:26 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-04-16 23:39:26 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-04-16 23:39:27 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 57 ms. Found 13 JPA repository interfaces.
-2025-04-16 23:39:27 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2025-04-16 23:39:27 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2025-04-16 23:39:27 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
-2025-04-16 23:39:27 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2025-04-16 23:39:27 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1242 ms
-2025-04-16 23:39:27 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
-2025-04-16 23:39:29 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@72df3ae5
-2025-04-16 23:39:29 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
-2025-04-16 23:39:29 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-04-16 23:39:29 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
-2025-04-16 23:39:29 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2025-04-16 23:39:30 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-04-16 23:39:34 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 23:39:34 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-04-16 23:39:35 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Инициализация сервиса Google Drive
-2025-04-16 23:39:35 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Сервис Google Drive успешно инициализирован
-2025-04-16 23:39:35 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2025-04-16 23:39:36 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
-2025-04-16 23:39:36 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2025-04-16 23:39:36 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Started HlCoursesAppServerApplication in 10.146 seconds (process running for 10.785)
-2025-04-16 23:40:03 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-04-16 23:40:03 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2025-04-16 23:40:03 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
-2025-04-16 23:40:03 [http-nio-8080-exec-1] ERROR o.e.h.config.JwtRequestFilter - Ошибка обработки JWT-токена: JWT expired at 2025-04-16T16:28:54Z. Current time: 2025-04-16T16:40:03Z, a difference of 669174 milliseconds.  Allowed clock skew: 0 milliseconds.
-2025-04-16 23:40:05 [http-nio-8080-exec-2] INFO  o.e.h.controller.CourseController - Запрос списка курсов для специалиста ID: 21
-2025-04-16 23:40:22 [http-nio-8080-exec-2] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to flush: java.io.IOException: Программа на вашем хост-компьютере разорвала установленное подключение]
-2025-04-16 23:42:39 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-04-16 23:42:39 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
-2025-04-16 23:42:39 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.
+2025-04-26 15:50:06 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 23792 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
+2025-04-26 15:50:06 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
+2025-04-26 15:50:06 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-04-26 15:50:06 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-04-26 15:50:08 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-26 15:50:08 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 65 ms. Found 13 JPA repository interfaces.
+2025-04-26 15:50:09 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-04-26 15:50:09 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-04-26 15:50:09 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2025-04-26 15:50:09 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-04-26 15:50:09 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2209 ms
+2025-04-26 15:50:09 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
+2025-04-26 15:50:12 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@1d5ed421
+2025-04-26 15:50:12 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
+2025-04-26 15:50:12 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-26 15:50:12 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2025-04-26 15:50:12 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-04-26 15:50:12 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-26 15:50:17 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-26 15:50:17 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-26 15:50:18 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Инициализация сервиса Google Drive
+2025-04-26 15:50:18 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Сервис Google Drive успешно инициализирован
+2025-04-26 15:50:18 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-04-26 15:50:19 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-04-26 15:50:19 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-04-26 15:50:19 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Started HlCoursesAppServerApplication in 12.625 seconds (process running for 19.284)
+2025-04-26 15:51:07 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-26 15:51:07 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-04-26 15:51:07 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-04-26 15:56:59 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-26 15:56:59 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
+2025-04-26 15:56:59 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.
+2025-04-26 15:57:05 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Starting HlCoursesAppServerApplication using Java 23.0.1 with PID 22316 (C:\Users\User\IdeaProjects\HLCoursesAppServer\target\classes started by User in C:\Users\User\IdeaProjects\HLCoursesAppServer)
+2025-04-26 15:57:05 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - The following 1 profile is active: "dev"
+2025-04-26 15:57:05 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-04-26 15:57:05 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-04-26 15:57:05 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-04-26 15:57:05 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 58 ms. Found 13 JPA repository interfaces.
+2025-04-26 15:57:06 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-04-26 15:57:06 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-04-26 15:57:06 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2025-04-26 15:57:06 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-04-26 15:57:06 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1095 ms
+2025-04-26 15:57:06 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Starting...
+2025-04-26 15:57:07 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HLCoursesPool - Added connection org.postgresql.jdbc.PgConnection@1eaec6c8
+2025-04-26 15:57:07 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Start completed.
+2025-04-26 15:57:07 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-04-26 15:57:08 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2025-04-26 15:57:08 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-04-26 15:57:08 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-04-26 15:57:12 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-04-26 15:57:12 [restartedMain] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-04-26 15:57:13 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Инициализация сервиса Google Drive
+2025-04-26 15:57:13 [restartedMain] INFO  o.e.h.config.GoogleDriveConfig - Сервис Google Drive успешно инициализирован
+2025-04-26 15:57:13 [restartedMain] INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-04-26 15:57:14 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-04-26 15:57:14 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-04-26 15:57:14 [restartedMain] INFO  o.e.h.HlCoursesAppServerApplication - Started HlCoursesAppServerApplication in 9.462 seconds (process running for 9.994)
+2025-04-26 15:58:30 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-26 15:58:30 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-04-26 15:58:30 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-04-26 16:02:38 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-04-26 16:02:38 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown initiated...
+2025-04-26 16:02:38 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HLCoursesPool - Shutdown completed.

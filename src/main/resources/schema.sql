@@ -85,12 +85,15 @@ CREATE TABLE progress_stats (
 
 -- Таблица для отзывов
 CREATE TABLE reviews (
-                         review_id SERIAL PRIMARY KEY,
+                         review_id BIGSERIAL PRIMARY KEY,
                          listener_id INT NOT NULL,
-                         course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
-                         rating INT CHECK (rating >= 1 AND rating <= 5),
+                         course_id INT NOT NULL,
+                         rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
                          review_text TEXT,
-                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         FOREIGN KEY (listener_id) REFERENCES listeners(listener_id) ON DELETE CASCADE,
+                         FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+                         CONSTRAINT unique_listener_course UNIQUE (listener_id, course_id)
 );
 
 -- Таблица для сообщений (чат между специалистами и слушателями)

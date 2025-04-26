@@ -1,24 +1,62 @@
 package org.example.hlcoursesappserver.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
-// Таблица для отзывов
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"listener_id", "course_id"})
+})
 public class Review {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Long reviewId;
 
-    private Long listenerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "listener_id", nullable = false)
+    @NotNull
+    private Listener listener;
 
-    private Long courseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    @NotNull
+    private Course course;
 
+    @Min(1)
+    @Max(5)
+    @NotNull
     private Integer rating;
 
+    @Column(columnDefinition = "TEXT")
     private String reviewText;
-    // Getters and Setters
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    // Конструкторы
+    public Review() {
+    }
+
+    public Review(Listener listener, Course course, Integer rating, String reviewText) {
+        this.listener = listener;
+        this.course = course;
+        this.rating = rating;
+        this.reviewText = reviewText;
+    }
+
+    // Метод для автоматической установки createdAt
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // Геттеры и сеттеры
     public Long getReviewId() {
         return reviewId;
     }
@@ -27,20 +65,20 @@ public class Review {
         this.reviewId = reviewId;
     }
 
-    public Long getListenerId() {
-        return listenerId;
+    public Listener getListener() {
+        return listener;
     }
 
-    public void setListenerId(Long listenerId) {
-        this.listenerId = listenerId;
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public Integer getRating() {
@@ -59,13 +97,11 @@ public class Review {
         this.reviewText = reviewText;
     }
 
-    public Review() {
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public Review(Long listenerId, Long courseId, Integer rating, String reviewText) {
-        this.listenerId = listenerId;
-        this.courseId = courseId;
-        this.rating = rating;
-        this.reviewText = reviewText;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

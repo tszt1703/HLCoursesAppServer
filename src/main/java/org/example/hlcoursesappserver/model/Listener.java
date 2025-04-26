@@ -11,6 +11,7 @@ public class Listener {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "listener_id")
     private Long listenerId;
     private String firstName;
     private String lastName;
