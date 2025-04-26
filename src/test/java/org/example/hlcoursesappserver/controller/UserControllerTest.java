@@ -64,7 +64,7 @@ class UserControllerTest {
         Specialist specialist = new Specialist();
 
         Mockito.when(userMapper.toSpecialist(Mockito.any(UserDTO.class))).thenReturn(specialist);
-        Mockito.when(specialistService.createUser(Mockito.any(Specialist.class))).thenReturn(specialist);
+//        Mockito.when(specialistService.createUser(Mockito.any(Specialist.class))).thenReturn(specialist);
         Mockito.when(userMapper.toUserDTO(Mockito.any(Specialist.class), Mockito.eq("Specialist"))).thenReturn(userDTO);
 
         mockMvc.perform(post("/api/users/specialist")

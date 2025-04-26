@@ -27,11 +27,11 @@ public class ListenerService implements UserService<Listener> {
         this.jwtUtil = jwtUtil;
     }
 
-    @Override
-    public Listener createUser(Listener listener) {
-        listener.setPassword(passwordEncoder.encode(listener.getPassword()));
-        return listenerRepository.save(listener);
-    }
+//    @Override
+//    public Listener createUser(Listener listener) {
+//        listener.setPassword(passwordEncoder.encode(listener.getPassword()));
+//        return listenerRepository.save(listener);
+//    }
 
     @Override
     public List<Listener> getAllUsers() {

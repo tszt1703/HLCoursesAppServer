@@ -24,11 +24,11 @@ public class SpecialistService implements UserService<Specialist> {
         this.jwtUtil = jwtUtil;
     }
 
-    @Override
-    public Specialist createUser(Specialist specialist) {
-        specialist.setPassword(passwordEncoder.encode(specialist.getPassword()));
-        return specialistRepository.save(specialist);
-    }
+//    @Override
+//    public Specialist createUser(Specialist specialist) {
+//        specialist.setPassword(passwordEncoder.encode(specialist.getPassword()));
+//        return specialistRepository.save(specialist);
+//    }
 
     @Override
     public List<Specialist> getAllUsers() {

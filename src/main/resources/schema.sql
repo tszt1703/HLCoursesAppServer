@@ -107,6 +107,16 @@ CREATE TABLE messages (
                           sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE pending_users (
+                               id BIGSERIAL PRIMARY KEY,
+                               email VARCHAR(255) NOT NULL UNIQUE,
+                               password VARCHAR(255) NOT NULL,
+                               role VARCHAR(50) NOT NULL,
+                               verification_token VARCHAR(255),
+                               last_verification_request TIMESTAMP,
+                               created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Связь с таблицей слушателей
 CREATE TABLE listeners (
                            listener_id SERIAL PRIMARY KEY,

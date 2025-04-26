@@ -33,19 +33,19 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @PostMapping("/specialist")
-    public ResponseEntity<UserDTO> createSpecialist(@RequestBody UserDTO userDTO) {
-        Specialist specialist = userMapper.toSpecialist(userDTO);
-        Specialist createdSpecialist = specialistService.createUser(specialist);
-        return ResponseEntity.ok(userMapper.toUserDTO(createdSpecialist, "Specialist"));
-    }
-
-    @PostMapping("/listener")
-    public ResponseEntity<UserDTO> createListener(@RequestBody UserDTO userDTO) {
-        Listener listener = userMapper.toListener(userDTO);
-        Listener createdListener = listenerService.createUser(listener);
-        return ResponseEntity.ok(userMapper.toUserDTO(createdListener, "Listener"));
-    }
+//    @PostMapping("/specialist")
+//    public ResponseEntity<UserDTO> createSpecialist(@RequestBody UserDTO userDTO) {
+//        Specialist specialist = userMapper.toSpecialist(userDTO);
+//        Specialist createdSpecialist = specialistService.createUser(specialist);
+//        return ResponseEntity.ok(userMapper.toUserDTO(createdSpecialist, "Specialist"));
+//    }
+//
+//    @PostMapping("/listener")
+//    public ResponseEntity<UserDTO> createListener(@RequestBody UserDTO userDTO) {
+//        Listener listener = userMapper.toListener(userDTO);
+//        Listener createdListener = listenerService.createUser(listener);
+//        return ResponseEntity.ok(userMapper.toUserDTO(createdListener, "Listener"));
+//    }
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface UserService<T> {
-    T createUser(T user);
+//    T createUser(T user);
     List<T> getAllUsers();
     Optional<T> getUserByEmail(String email);
     T getUserById(Long id);

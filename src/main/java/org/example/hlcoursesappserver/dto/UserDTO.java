@@ -3,7 +3,6 @@ package org.example.hlcoursesappserver.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class UserDTO {
     private Long id;
@@ -18,23 +17,32 @@ public class UserDTO {
     private String description;
     private String socialLinks; // Only for Specialists
     private String certificationDocumentUrl; // Only for Specialists
+    private boolean isEmailVerified; // Добавлено для статуса подтверждения
 
     // Default constructor
     public UserDTO() {}
 
-    // Constructor for minimal data (id, email, role)
-    public UserDTO(Long id, String email, String role) {
+    // Constructor for registration (minimal data from pending_users)
+    public UserDTO(Long id, String email, String role, boolean isEmailVerified) {
         this.id = id;
         this.email = email;
         this.role = role;
+        this.isEmailVerified = isEmailVerified;
     }
 
-    // Конструктор для минимального набора данных (id, role)
-    public UserDTO(Long id, String role) {
+    // Constructor for Listeners
+    public UserDTO(Long id, String firstName, String lastName, String email, String role,
+                   LocalDate birthDate, String profilePhotoUrl, String description) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.role = role;
+        this.birthDate = birthDate;
+        this.profilePhotoUrl = profilePhotoUrl;
+        this.description = description;
+        this.isEmailVerified = true; // Слушатели всегда подтверждены
     }
-
 
     // Constructor for Specialists
     public UserDTO(Long id, String firstName, String lastName, String email, String role,
@@ -50,19 +58,7 @@ public class UserDTO {
         this.description = description;
         this.socialLinks = socialLinks;
         this.certificationDocumentUrl = certificationDocumentUrl;
-    }
-
-    // Constructor for Listeners
-    public UserDTO(Long id, String firstName, String lastName, String email, String role,
-                   LocalDate birthDate, String profilePhotoUrl, String description) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.role = role;
-        this.birthDate = birthDate;
-        this.profilePhotoUrl = profilePhotoUrl;
-        this.description = description;
+        this.isEmailVerified = true; // Специалисты всегда подтверждены
     }
 
     // Getters and setters
@@ -146,6 +142,14 @@ public class UserDTO {
         this.certificationDocumentUrl = certificationDocumentUrl;
     }
 
+    public boolean isEmailVerified() {
+        return isEmailVerified;
+    }
+
+    public void setEmailVerified(boolean isEmailVerified) {
+        this.isEmailVerified = isEmailVerified;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -159,6 +163,7 @@ public class UserDTO {
                 ", description='" + description + '\'' +
                 ", socialLinks='" + socialLinks + '\'' +
                 ", certificationDocumentUrl='" + certificationDocumentUrl + '\'' +
+                ", isEmailVerified=" + isEmailVerified +
                 '}';
     }
 }

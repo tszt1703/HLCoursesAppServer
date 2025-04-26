@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_ENDPOINTS = {"/auth/register", "/auth/login", "/auth/refresh"};
+    private static final String[] PUBLIC_ENDPOINTS = {"/auth/register", "/auth/login", "/auth/refresh", "/auth/verify", "/auth/resend-verification", "/auth/change-email"};
     private static final String PUBLIC_GET_PATTERN = "/public/**";
 
     private final JwtUtil jwtUtil;
