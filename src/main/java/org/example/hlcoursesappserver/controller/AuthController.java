@@ -107,16 +107,12 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam("token") String token) {
         try {
-            System.out.println("Получен токен верификации: " + token); // Отладка
             registrationService.verifyUser(token);
             return ResponseEntity.ok(new ApiResponse<>("Email успешно подтверждён"));
         } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка верификации: " + e.getMessage()); // Отладка
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value())));
         } catch (Exception e) {
-            System.err.println("Ошибка верификации: " + e.getMessage()); // Отладка
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(new ErrorResponse("Ошибка подтверждения: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())));
         }
@@ -127,7 +123,7 @@ public class AuthController {
         try {
             String email = request.get("email");
             Optional<PendingUser> pendingUserOpt = pendingUserRepository.findByEmail(email);
-            if (!pendingUserOpt.isPresent()) {
+            if (pendingUserOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(new ErrorResponse("Пользователь с таким email не найден", HttpStatus.BAD_REQUEST.value())));
             }
@@ -159,7 +155,7 @@ public class AuthController {
             String newEmail = request.get("newEmail");
 
             Optional<PendingUser> pendingUserOpt = pendingUserRepository.findByEmail(oldEmail);
-            if (!pendingUserOpt.isPresent()) {
+            if (pendingUserOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(new ErrorResponse("Пользователь с таким email не найден", HttpStatus.BAD_REQUEST.value())));
             }
@@ -186,12 +182,53 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String resetToken = authService.requestPasswordReset(email);
+            sendPasswordResetEmail(email, resetToken);
+            return ResponseEntity.ok(new ApiResponse<>("Письмо для сброса пароля отправлено"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(new ErrorResponse("Ошибка отправки письма: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String resetToken = request.get("resetToken");
+            String newPassword = request.get("newPassword");
+            authService.resetPassword(resetToken, newPassword);
+            return ResponseEntity.ok(new ApiResponse<>("Пароль успешно сброшен"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(new ErrorResponse("Ошибка сброса пароля: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value())));
+        }
+    }
+
     private void sendVerificationEmail(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("Подтверждение регистрации");
         message.setText("Пожалуйста, подтвердите вашу электронную почту, перейдя по ссылке:\n" +
                 "http://localhost:8080/auth/verify?token=" + token);
+        mailSender.send(message);
+    }
+
+    private void sendPasswordResetEmail(String email, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Сброс пароля");
+        message.setText("Для сброса пароля перейдите по ссылке:\n" +
+                "http://localhost:8080/auth/reset-password?token=" + token);
         mailSender.send(message);
     }
 }

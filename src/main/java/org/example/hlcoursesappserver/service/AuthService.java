@@ -56,4 +56,59 @@ public class AuthService {
         // Если пользователь не найден или неверный пароль
         throw new IllegalArgumentException("Неверный email или пароль");
     }
+
+    public String requestPasswordReset(String email) {
+        // Проверяем, что email подтверждён (нет в pending_users)
+        if (pendingUserRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email не подтверждён. Пожалуйста, подтвердите ваш email.");
+        }
+
+        // Проверяем, существует ли пользователь
+        Optional<Listener> listenerOpt = listenerRepository.findByEmail(email);
+        Optional<Specialist> specialistOpt = specialistRepository.findByEmail(email);
+
+        if (listenerOpt.isEmpty() && specialistOpt.isEmpty()) {
+            throw new IllegalArgumentException("Пользователь с таким email не найден");
+        }
+
+        // Определяем роль
+        String role = listenerOpt.isPresent() ? "Listener" : "Specialist";
+
+        // Генерируем JWT для сброса пароля
+        return jwtUtil.generateResetPasswordToken(email, role);
+    }
+
+    public void resetPassword(String resetToken, String newPassword) {
+        // Проверяем токен
+        if (!jwtUtil.validateResetPasswordToken(resetToken)) {
+            throw new IllegalArgumentException("Недействительный или истёкший токен сброса пароля");
+        }
+
+        // Извлекаем email и роль
+        String email = jwtUtil.extractEmailFromResetToken(resetToken);
+        String role = jwtUtil.extractRoleFromResetToken(resetToken);
+
+        // Обновляем пароль
+        if ("Listener".equalsIgnoreCase(role)) {
+            Optional<Listener> listenerOpt = listenerRepository.findByEmail(email);
+            if (listenerOpt.isPresent()) {
+                Listener listener = listenerOpt.get();
+                listener.setPassword(passwordEncoder.encode(newPassword));
+                listenerRepository.save(listener);
+            } else {
+                throw new IllegalArgumentException("Пользователь не найден");
+            }
+        } else if ("Specialist".equalsIgnoreCase(role)) {
+            Optional<Specialist> specialistOpt = specialistRepository.findByEmail(email);
+            if (specialistOpt.isPresent()) {
+                Specialist specialist = specialistOpt.get();
+                specialist.setPassword(passwordEncoder.encode(newPassword));
+                specialistRepository.save(specialist);
+            } else {
+                throw new IllegalArgumentException("Пользователь не найден");
+            }
+        } else {
+            throw new IllegalArgumentException("Недопустимая роль в токене");
+        }
+    }
 }

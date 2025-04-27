@@ -27,16 +27,27 @@ public class JwtUtil {
     @Value("${jwt.refreshExpirationMs}")
     private long refreshExpirationMs;
 
+    @Value("${jwt.resetPasswordExpirationMs:3600000}") // 1 час по умолчанию
+    private long resetPasswordExpirationMs;
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
     public Long extractUserId(String token) {
-        return extractAllClaims(token).get("userId", Long.class);
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
 
     public String extractRole(String token) {
-        return extractAllClaims(token).get("role", String.class);
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String extractEmailFromResetToken(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    public String extractRoleFromResetToken(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -45,17 +56,38 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            throw new InvalidTokenException("Token has expired");
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid token: " + e.getMessage());
+        }
     }
 
     public Boolean validateToken(String token) {
         try {
             Claims claims = extractAllClaims(token);
             return !isTokenExpired(token);
-        } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            throw new InvalidTokenException("Token has expired");
+        } catch (InvalidTokenException e) {
+            throw e;
         } catch (Exception e) {
             throw new InvalidTokenException("Invalid token: " + e.getMessage());
+        }
+    }
+
+    public Boolean validateResetPasswordToken(String token) {
+        try {
+            extractAllClaims(token);
+            return !isTokenExpired(token);
+        } catch (InvalidTokenException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid reset password token: " + e.getMessage());
         }
     }
 
@@ -81,6 +113,13 @@ public class JwtUtil {
         return createToken(claims, refreshExpirationMs);
     }
 
+    public String generateResetPasswordToken(String email, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", email);
+        claims.put("role", role);
+        return createToken(claims, resetPasswordExpirationMs);
+    }
+
     private String createToken(Map<String, Object> claims, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -92,6 +131,7 @@ public class JwtUtil {
 
     public Boolean validateRefreshToken(String token) {
         try {
+            extractAllClaims(token);
             return !isTokenExpired(token);
         } catch (Exception e) {
             return false;
