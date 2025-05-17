@@ -43,10 +43,18 @@ CREATE TABLE lessons (
                          module_id INT REFERENCES course_modules(module_id) ON DELETE CASCADE,
                          title VARCHAR NOT NULL,
                          content TEXT,
-                         photo_url VARCHAR,
-                         video_url VARCHAR,
                          position INT DEFAULT 0, -- Порядок уроков в модуле
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Создание таблицы lesson_files
+CREATE TABLE lesson_files (
+                              file_id SERIAL PRIMARY KEY,
+                              lesson_id INT REFERENCES lessons(lesson_id) ON DELETE CASCADE,
+                              file_type VARCHAR NOT NULL, -- Тип файла: 'photo', 'video', 'document' и т.д.
+                              file_name VARCHAR NOT NULL, -- Название файла
+                              file_url VARCHAR NOT NULL,
+                              uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Таблица для тестов
@@ -94,17 +102,6 @@ CREATE TABLE reviews (
                          FOREIGN KEY (listener_id) REFERENCES listeners(listener_id) ON DELETE CASCADE,
                          FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
                          CONSTRAINT unique_listener_course UNIQUE (listener_id, course_id)
-);
-
--- Таблица для сообщений (чат между специалистами и слушателями)
-CREATE TABLE messages (
-                          message_id SERIAL PRIMARY KEY,
-                          sender_id INT NOT NULL,
-                          receiver_id INT NOT NULL,
-                          sender_role VARCHAR NOT NULL,
-                          receiver_role VARCHAR NOT NULL,
-                          message_text TEXT NOT NULL,
-                          sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE pending_users (
