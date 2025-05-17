@@ -28,6 +28,13 @@ public class UserController {
     private final ListenerService listenerService;
     private final UserMapper userMapper;
 
+    /**
+     * Конструктор контроллера пользователей.
+     *
+     * @param specialistService сервис для работы со специалистами
+     * @param listenerService   сервис для работы со слушателями
+     * @param userMapper        маппер для преобразования между сущностями и DTO
+     */
     @Autowired
     public UserController(SpecialistService specialistService, ListenerService listenerService, UserMapper userMapper) {
         this.specialistService = specialistService;
@@ -50,6 +57,11 @@ public class UserController {
 //    }
 
 
+    /**
+     * Получает всех пользователей системы.
+     *
+     * @return список всех пользователей
+     */
     @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех пользователей системы")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
@@ -64,6 +76,12 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    /**
+     * Получает пользователя по его email.
+     *
+     * @param email email пользователя
+     * @return пользователь с указанным email
+     */
     @Operation(summary = "Получить пользователя по email", description = "Возвращает пользователя по его email")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
@@ -87,6 +105,13 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * Получает пользователя по его ID.
+     *
+     * @param id   ID пользователя
+     * @param role Роль пользователя (Specialist или Listener)
+     * @return пользователь с указанным ID
+     */
     @Operation(summary = "Получить пользователя по ID", description = "Возвращает пользователя по его ID")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
@@ -121,6 +146,7 @@ public class UserController {
         return ResponseEntity.badRequest().body(null);
     }
 
+    // Метод для обновления пользователя
     @Operation(summary = "Обновить пользователя", description = "Обновляет данные пользователя по его ID")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
@@ -180,7 +206,6 @@ public class UserController {
         logger.warn("Попытка обновления пользователя с некорректной ролью. ID: {}, роль: {}", id, userDTO.getRole());
         return ResponseEntity.badRequest().body("Ошибка: Неверная роль пользователя.");
     }
-
 
     // Метод для обновления email
     @Operation(summary = "Обновить email", description = "Обновляет email пользователя по его ID")
@@ -251,6 +276,7 @@ public class UserController {
         return ResponseEntity.badRequest().build();
     }
 
+    // Метод для удаления пользователя
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по его ID")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),

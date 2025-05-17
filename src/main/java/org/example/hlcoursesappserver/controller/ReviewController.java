@@ -204,6 +204,20 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Получает все отзывы по ID слушателя.
+     *
+     * @param token        JWT-токен пользователя
+     * @return список отзывов
+     */
+    @Operation(summary = "Получение всех отзывов по ID слушателя", description = "Получает все отзывы для слушателя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Отзывы успешно найдены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Отзывы не найдены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
+    @GetMapping("/listener")
     private Long validateListenerToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Токен отсутствует или некорректен");
@@ -223,6 +237,18 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Проверяет токен для получения всех отзывов.
+     *
+     * @param token JWT-токен пользователя
+     */
+    @Operation(summary = "Проверка токена для получения всех отзывов", description = "Проверяет токен для получения всех отзывов")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Токен валиден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный токен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Недостаточно прав для выполнения действия")
+    })
+    @GetMapping("/listener/all")
     private void validateToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Токен отсутствует или некорректен");

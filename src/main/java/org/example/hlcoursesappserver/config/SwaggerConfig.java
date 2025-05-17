@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    /**
+     * Создаёт и настраивает OpenAPI для документации API.
+     *
+     * @return объект OpenAPI с информацией о версии и описанием
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

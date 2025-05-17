@@ -37,6 +37,17 @@ public class AuthController {
     private final PendingUserRepository pendingUserRepository;
     private final JavaMailSender mailSender;
 
+    /**
+     * Конструктор контроллера аутентификации.
+     *
+     * @param authService            сервис аутентификации
+     * @param registrationService    сервис регистрации
+     * @param jwtUtil                утилита для работы с JWT-токенами
+     * @param listenerRepository     репозиторий слушателей
+     * @param specialistRepository   репозиторий специалистов
+     * @param pendingUserRepository  репозиторий ожидающих пользователей
+     * @param mailSender             почтовый отправитель
+     */
     public AuthController(AuthService authService, RegistrationService registrationService, JwtUtil jwtUtil,
                           ListenerRepository listenerRepository, SpecialistRepository specialistRepository,
                           PendingUserRepository pendingUserRepository, JavaMailSender mailSender) {
@@ -49,6 +60,12 @@ public class AuthController {
         this.mailSender = mailSender;
     }
 
+    /**
+     * Регистрация нового пользователя.
+     *
+     * @param request запрос на регистрацию
+     * @return ответ с данными пользователя
+     */
     @Operation(summary = "Регистрация пользователя", description = "Регистрирует нового пользователя в системе.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Пользователь успешно зарегистрирован"),
@@ -69,6 +86,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Авторизация пользователя.
+     *
+     * @param request запрос на авторизацию
+     * @return ответ с токенами доступа и обновления
+     */
     @Operation(summary = "Авторизация пользователя", description = "Авторизует пользователя и возвращает токены.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Авторизация успешна"),
@@ -94,6 +117,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Обновление токенов доступа и обновления.
+     *
+     * @param request запрос на обновление токенов
+     * @return ответ с новыми токенами
+     */
     @Operation(summary = "Обновление токенов", description = "Обновляет access и refresh токены.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Токены успешно обновлены"),
@@ -124,6 +153,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Подтверждение email пользователя.
+     *
+     * @param token токен подтверждения
+     * @return ответ с сообщением о результате
+     */
     @Operation(summary = "Подтверждение email", description = "Подтверждает email пользователя по токену.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Email успешно подтверждён"),
@@ -144,6 +179,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Повторная отправка письма для подтверждения email.
+     *
+     * @param request запрос с email
+     * @return ответ с сообщением о результате
+     */
     @Operation(summary = "Повторная отправка письма для подтверждения email", description = "Отправляет повторное письмо для подтверждения email.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
@@ -181,6 +222,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Изменение email пользователя.
+     *
+     * @param request запрос с новыми данными
+     * @return ответ с сообщением о результате
+     */
     @Operation(summary = "Изменение email", description = "Изменяет email пользователя.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Email успешно изменён"),
@@ -221,6 +268,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Запрос на сброс пароля.
+     *
+     * @param request запрос с email
+     * @return ответ с сообщением о результате
+     */
     @Operation(summary = "Запрос на сброс пароля", description = "Отправляет письмо для сброса пароля.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
@@ -243,6 +296,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Сброс пароля пользователя.
+     *
+     * @param request запрос с токеном и новым паролем
+     * @return ответ с сообщением о результате
+     */
     @Operation(summary = "Сброс пароля", description = "Сбрасывает пароль пользователя по токену.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Пароль успешно сброшен"),
@@ -265,6 +324,19 @@ public class AuthController {
         }
     }
 
+    /**
+     * Отправляет письмо с подтверждением регистрации на указанный email.
+     *
+     * @param email адрес электронной почты
+     * @param token токен подтверждения
+     */
+    @Operation(summary = "Отправка письма с подтверждением регистрации", description = "Отправляет письмо с подтверждением регистрации на указанный email.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный email"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    @PostMapping("/send-verification-email")
     private void sendVerificationEmail(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -274,6 +346,19 @@ public class AuthController {
         mailSender.send(message);
     }
 
+    /**
+     * Отправляет письмо для сброса пароля на указанный email.
+     *
+     * @param email адрес электронной почты
+     * @param token токен сброса пароля
+     */
+    @Operation(summary = "Отправка письма для сброса пароля", description = "Отправляет письмо для сброса пароля на указанный email.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный email"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    @PostMapping("/send-password-reset-email")
     private void sendPasswordResetEmail(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);

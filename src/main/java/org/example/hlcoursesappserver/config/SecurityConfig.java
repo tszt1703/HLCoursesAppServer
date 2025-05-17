@@ -25,6 +25,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Паттерны публичных эндпоинтов, доступных без аутентификации.
+     */
     private static final String[] PUBLIC_ENDPOINTS = {
             "/auth/register",
             "/auth/login",
@@ -32,18 +35,24 @@ public class SecurityConfig {
             "/auth/verify",
             "/auth/resend-verification",
             "/auth/change-email",
-            "/auth/forgot-password", // Добавлен эндпоинт для запроса восстановления пароля
-            "/auth/reset-password",   // Добавлен эндпоинт для сброса пароля
-            "/uploads/**", // Публичный доступ к файлам
+            "/auth/forgot-password",
+            "/auth/reset-password",
             "/swagger-ui/**",
             "/v3/api-docs/**"
     };
+
+    /**
+     * Паттерн для публичных GET-запросов.
+     */
     private static final String PUBLIC_GET_PATTERN = "/public/**";
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    /**
+     * Дополнительные публичные эндпоинты, доступные без аутентификации.
+     */
     @Value("${security.public-endpoints:}")
     private String[] additionalPublicEndpoints;
 

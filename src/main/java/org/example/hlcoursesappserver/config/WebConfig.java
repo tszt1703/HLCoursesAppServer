@@ -6,6 +6,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    /**
+     * Настраивает обработку статических ресурсов.
+     * Добавляет обработчик ресурсов для загрузок файлов.
+     *
+     * @param registry реестр обработчиков ресурсов
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")

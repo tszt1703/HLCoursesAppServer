@@ -32,12 +32,23 @@ public class CourseController {
     private final CourseService courseService;
     private final CourseApplicationService applicationService;
 
+    /**
+     * Конструктор контроллера курсов.
+     *
+     * @param courseService      сервис для работы с курсами
+     * @param applicationService сервис для работы с заявками на курсы
+     */
     @Autowired
     public CourseController(CourseService courseService, CourseApplicationService applicationService) {
         this.courseService = courseService;
         this.applicationService = applicationService;
     }
 
+    /**
+     * Получает список всех курсов.
+     *
+     * @return список курсов
+     */
     @Operation(summary = "Создание нового курса", description = "Создает новый курс.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно создан"),
@@ -63,6 +74,11 @@ public class CourseController {
         }
     }
 
+    /**
+     * Получает список всех курсов.
+     *
+     * @return список курсов
+     */
     @Operation(summary = "Обновление курса", description = "Обновляет существующий курс по его ID.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно обновлен"),
@@ -90,6 +106,12 @@ public class CourseController {
         }
     }
 
+    /**
+     * Получает курс по его ID.
+     *
+     * @param courseId идентификатор курса
+     * @return курс с указанным ID
+     */
     @Operation(summary = "Создание модуля", description = "Создает новый модуль для курса.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Модуль успешно создан"),
@@ -111,6 +133,7 @@ public class CourseController {
                     .body(Map.of("error", "Произошла ошибка при создании модуля: " + e.getMessage()));
         }
     }
+
 
     @Operation(summary = "Создание урока", description = "Создает новый урок для модуля.")
     @ApiResponses(value = {
