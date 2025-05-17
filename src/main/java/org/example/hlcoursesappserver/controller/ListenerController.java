@@ -1,5 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.hlcoursesappserver.model.Course;
 import org.example.hlcoursesappserver.service.ListenerService;
 import org.slf4j.Logger;
@@ -24,6 +26,20 @@ public class ListenerController {
         this.listenerService = listenerService;
     }
 
+    /**
+     * Добавляет курс в избранное для слушателя.
+     *
+     * @param listenerId идентификатор слушателя
+     * @param courseId   идентификатор курса
+     * @param authenticatedUserId идентификатор аутентифицированного пользователя
+     * @return ответ с сообщением об успешном добавлении курса в избранное
+     */
+    @Operation(summary = "Добавить курс в избранное", description = "Добавляет курс в избранное для слушателя")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно добавлен в избранное"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка при добавлении курса в избранное"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Несанкционированная попытка добавить курс в избранное другого пользователя")
+    })
     @PostMapping("/{listenerId}/favorites/{courseId}")
     public ResponseEntity<?> addCourseToFavorites(
             @PathVariable Long listenerId,
@@ -45,6 +61,20 @@ public class ListenerController {
         }
     }
 
+    /**
+     * Удаляет курс из избранного для слушателя.
+     *
+     * @param listenerId идентификатор слушателя
+     * @param courseId   идентификатор курса
+     * @param authenticatedUserId идентификатор аутентифицированного пользователя
+     * @return ответ с сообщением об успешном удалении курса из избранного
+     */
+    @Operation(summary = "Удалить курс из избранного", description = "Удаляет курс из избранного для слушателя")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно удалён из избранного"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка при удалении курса из избранного"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Несанкционированная попытка удалить курс из избранного другого пользователя")
+    })
     @DeleteMapping("/{listenerId}/favorites/{courseId}")
     public ResponseEntity<?> removeCourseFromFavorites(
             @PathVariable Long listenerId,
@@ -66,6 +96,18 @@ public class ListenerController {
         }
     }
 
+    /**
+     * Получает список избранных курсов для слушателя.
+     *
+     * @param listenerId идентификатор слушателя
+     * @param authenticatedUserId идентификатор аутентифицированного пользователя
+     * @return список избранных курсов
+     */
+    @Operation(summary = "Получить список избранных курсов", description = "Получает список избранных курсов для слушателя")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список избранных курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Несанкционированная попытка получить избранное другого пользователя")
+    })
     @GetMapping("/{listenerId}/favorites")
     public ResponseEntity<List<Course>> getFavoriteCourses(
             @PathVariable Long listenerId,

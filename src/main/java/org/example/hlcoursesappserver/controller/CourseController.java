@@ -1,5 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.model.*;
 import org.example.hlcoursesappserver.service.CourseApplicationService;
@@ -36,6 +38,12 @@ public class CourseController {
         this.applicationService = applicationService;
     }
 
+    @Operation(summary = "Создание нового курса", description = "Создает новый курс.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping
     public ResponseEntity<?> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         try {
@@ -55,6 +63,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление курса", description = "Обновляет существующий курс по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}")
     public ResponseEntity<?> updateCourse(@PathVariable Long courseId,
                                           @Valid @RequestBody CourseUpdateRequest updateRequest) {
@@ -75,6 +90,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Создание модуля", description = "Создает новый модуль для курса.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Модуль успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/modules")
     public ResponseEntity<?> createModule(@PathVariable Long courseId,
                                           @Valid @RequestBody ModuleRequest moduleRequest) {
@@ -91,6 +112,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Создание урока", description = "Создает новый урок для модуля.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Урок успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/modules/{moduleId}/lessons")
     public ResponseEntity<?> createLesson(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -108,6 +135,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Создание теста", description = "Создает новый тест для урока.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Тест успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
     public ResponseEntity<?> createTest(@PathVariable Long courseId,
                                         @PathVariable Long moduleId,
@@ -126,6 +159,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Создание вопроса", description = "Создает новый вопрос для теста.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Вопрос успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
     public ResponseEntity<?> createQuestion(@PathVariable Long courseId,
                                             @PathVariable Long moduleId,
@@ -145,6 +184,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Создание ответа", description = "Создает новый ответ для вопроса.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Ответ успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers")
     public ResponseEntity<?> createAnswer(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -165,6 +210,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление курса", description = "Удаляет курс по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long courseId) {
         try {
@@ -176,6 +227,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление модуля", description = "Удаляет модуль по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Модуль успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Модуль не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}/modules/{moduleId}")
     public ResponseEntity<?> deleteModule(@PathVariable Long courseId,
                                           @PathVariable Long moduleId) {
@@ -191,6 +248,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление урока", description = "Удаляет урок по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Урок успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Урок не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
     public ResponseEntity<?> deleteLesson(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -207,6 +270,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление теста", description = "Удаляет тест по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Тест успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Тест не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
     public ResponseEntity<?> deleteTest(@PathVariable Long courseId,
                                         @PathVariable Long moduleId,
@@ -224,6 +293,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление вопроса", description = "Удаляет вопрос по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Вопрос успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Вопрос не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
     public ResponseEntity<?> deleteQuestion(@PathVariable Long courseId,
                                             @PathVariable Long moduleId,
@@ -242,6 +317,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Удаление ответа", description = "Удаляет ответ по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ответ успешно удален"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ответ не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @DeleteMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
     public ResponseEntity<?> deleteAnswer(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -261,6 +342,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление модуля", description = "Обновляет существующий модуль по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Модуль успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Модуль не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/modules/{moduleId}")
     public ResponseEntity<?> updateModule(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -279,6 +367,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление урока", description = "Обновляет существующий урок по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Урок успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Урок не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
     public ResponseEntity<?> updateLesson(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -298,6 +393,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление теста", description = "Обновляет существующий тест по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Тест успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Тест не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
     public ResponseEntity<?> updateTest(@PathVariable Long courseId,
                                         @PathVariable Long moduleId,
@@ -318,6 +420,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление вопроса", description = "Обновляет существующий вопрос по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Вопрос успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Вопрос не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long courseId,
                                             @PathVariable Long moduleId,
@@ -339,6 +448,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление ответа", description = "Обновляет существующий ответ по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ответ успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ответ не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Ошибка в данных запроса"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
     public ResponseEntity<?> updateAnswer(@PathVariable Long courseId,
                                           @PathVariable Long moduleId,
@@ -361,6 +477,11 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех курсов", description = "Возвращает список всех курсов.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/search")
     public ResponseEntity<?> searchCoursesByTitle(@RequestParam("title") String title) {
         try {
@@ -375,6 +496,11 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Фильтрация курсов", description = "Возвращает список курсов по заданным критериям.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/filter")
     public ResponseEntity<?> filterCourses(
             @RequestParam(value = "title", required = false) String title,
@@ -394,6 +520,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение курса с деталями", description = "Возвращает курс с его модулями и уроками по ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}")
     public ResponseEntity<?> getCourseWithDetails(@PathVariable Long courseId) {
         try {
@@ -410,6 +542,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех курсов слушателя", description = "Возвращает список всех курсов, на которые записан слушатель.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Слушатель не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/apply")
     public ResponseEntity<?> applyForCourse(
             @PathVariable Long courseId,
@@ -424,6 +562,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Обновление статуса заявки", description = "Обновляет статус заявки на курс.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Статус заявки успешно обновлён"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный статус"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Заявка не найдена"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/applications/{applicationId}/status")
     public ResponseEntity<?> updateApplicationStatus(
             @PathVariable Long applicationId,
@@ -443,6 +588,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех заявок на курс", description = "Возвращает список всех заявок на курс.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список заявок успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/applications/pending")
     public ResponseEntity<List<CourseApplication>> getPendingApplications(
             @PathVariable Long courseId,
@@ -452,6 +603,13 @@ public class CourseController {
         return ResponseEntity.ok(applications);
     }
 
+    @Operation(summary = "Завершение урока", description = "Отмечает урок как завершённый для слушателя.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Урок успешно завершён"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Урок уже завершён или не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Урок не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/lessons/{lessonId}/complete")
     public ResponseEntity<?> completeLesson(
             @PathVariable Long courseId,
@@ -477,6 +635,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Прохождение теста", description = "Отмечает тест как пройденный для слушателя.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Тест успешно пройден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Тест уже пройден или не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Тест не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping("/{courseId}/tests/{testId}/pass")
     public ResponseEntity<?> passTest(
             @PathVariable Long courseId,
@@ -502,6 +667,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение статистики прогресса", description = "Возвращает статистику прогресса слушателя по курсу.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Статистика успешно получена"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Статистика не найдена"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/progress")
     public ResponseEntity<?> getProgressStat(
             @PathVariable Long courseId,
@@ -524,6 +695,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение прогресса всех курсов слушателя", description = "Возвращает список прогресса всех курсов для слушателя.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список прогресса успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Слушатель не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/my-progress")
     public ResponseEntity<?> getAllProgressForListener(
             @RequestHeader("userId") Long listenerId) {
@@ -541,6 +718,11 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех категорий курсов", description = "Возвращает список всех категорий курсов.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список категорий успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories() {
         try {
@@ -555,6 +737,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение курсов специалиста", description = "Возвращает список курсов, созданных специалистом.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Специалист не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/specialist")
     public ResponseEntity<?> getCoursesBySpecialist(@RequestHeader("userId") Long specialistId) {
         try {
@@ -574,6 +762,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Публикация курса", description = "Публикует курс по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно опубликован"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Ошибка доступа"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/publish")
     public ResponseEntity<?> publishCourse(@PathVariable Long courseId) {
         logger.info("Запрос на публикацию курса ID: {}", courseId);
@@ -596,6 +791,13 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Отмена публикации курса", description = "Отменяет публикацию курса по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Курс успешно отменён"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Ошибка доступа"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{courseId}/unpublish")
     public ResponseEntity<?> unpublishCourse(@PathVariable Long courseId) {
         logger.info("Запрос на отмену публикации курса ID: {}", courseId);
@@ -618,6 +820,11 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех опубликованных курсов", description = "Возвращает список всех опубликованных курсов.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/published")
     public ResponseEntity<?> getPublishedCourses() {
         try {
@@ -636,6 +843,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех модулей курса", description = "Возвращает список всех модулей курса по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список модулей успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Курс не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules")
     public ResponseEntity<?> getModulesByCourseId(@PathVariable Long courseId) {
         try {
@@ -654,6 +867,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение модуля курса", description = "Возвращает модуль курса по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Модуль успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Модуль не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}")
     public ResponseEntity<?> getModuleById(@PathVariable Long courseId, @PathVariable Long moduleId) {
         try {
@@ -671,6 +890,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех уроков модуля", description = "Возвращает список всех уроков модуля по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список уроков успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Модуль не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons")
     public ResponseEntity<?> getLessonsByModuleId(@PathVariable Long courseId, @PathVariable Long moduleId) {
         try {
@@ -689,6 +914,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение урока модуля", description = "Возвращает урок модуля по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Урок успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Урок не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}")
     public ResponseEntity<?> getLessonById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId) {
         try {
@@ -706,6 +937,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех тестов урока", description = "Возвращает список всех тестов урока по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список тестов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Урок не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests")
     public ResponseEntity<?> getTestsByLessonId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId) {
         try {
@@ -724,6 +961,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение теста урока", description = "Возвращает тест урока по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Тест успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Тест не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}")
     public ResponseEntity<?> getTestById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId) {
         try {
@@ -741,6 +984,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех вопросов теста", description = "Возвращает список всех вопросов теста по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список вопросов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Тест не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions")
     public ResponseEntity<?> getQuestionsByTestId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId) {
         try {
@@ -759,6 +1008,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение вопроса теста", description = "Возвращает вопрос теста по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Вопрос успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Вопрос не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}")
     public ResponseEntity<?> getQuestionById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId) {
         try {
@@ -776,6 +1031,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение всех ответов на вопрос", description = "Возвращает список всех ответов на вопрос по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список ответов успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Вопрос не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers")
     public ResponseEntity<?> getAnswersByQuestionId(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId) {
         try {
@@ -794,6 +1055,12 @@ public class CourseController {
         }
     }
 
+    @Operation(summary = "Получение ответа на вопрос", description = "Возвращает ответ на вопрос по его ID.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ответ успешно получен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ответ не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{courseId}/modules/{moduleId}/lessons/{lessonId}/tests/{testId}/questions/{questionId}/answers/{answerId}")
     public ResponseEntity<?> getAnswerById(@PathVariable Long courseId, @PathVariable Long moduleId, @PathVariable Long lessonId, @PathVariable Long testId, @PathVariable Long questionId, @PathVariable Long answerId) {
         try {

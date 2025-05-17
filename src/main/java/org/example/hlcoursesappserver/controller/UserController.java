@@ -1,5 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.hlcoursesappserver.dto.UserDTO;
 import org.example.hlcoursesappserver.mapper.UserMapper;
 import org.example.hlcoursesappserver.model.Listener;
@@ -47,6 +49,13 @@ public class UserController {
 //        return ResponseEntity.ok(userMapper.toUserDTO(createdListener, "Listener"));
 //    }
 
+
+    @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех пользователей системы")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Пользователи не найдены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<Specialist> specialists = specialistService.getAllUsers();
@@ -55,6 +64,12 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @Operation(summary = "Получить пользователя по email", description = "Возвращает пользователя по его email")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Пользователь не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @GetMapping("/{email}")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
         Optional<Specialist> specialistOpt = specialistService.getUserByEmail(email);
@@ -72,6 +87,12 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "Получить пользователя по ID", description = "Возвращает пользователя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Пользователь не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @GetMapping("/id/{id}")
     public ResponseEntity<UserDTO> getUserById(
             @PathVariable Long id,
@@ -100,6 +121,13 @@ public class UserController {
         return ResponseEntity.badRequest().body(null);
     }
 
+    @Operation(summary = "Обновить пользователя", description = "Обновляет данные пользователя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректные данные"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Нет прав на обновление"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable Long id,
@@ -155,6 +183,13 @@ public class UserController {
 
 
     // Метод для обновления email
+    @Operation(summary = "Обновить email", description = "Обновляет email пользователя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректные данные"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Нет прав на обновление"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PutMapping("/{id}/email")
     public ResponseEntity<?> updateEmail(
             @PathVariable Long id,
@@ -182,6 +217,14 @@ public class UserController {
         return ResponseEntity.badRequest().build();
     }
 
+    // Метод для обновления пароля
+    @Operation(summary = "Обновить пароль", description = "Обновляет пароль пользователя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректные данные"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Нет прав на обновление"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(
             @PathVariable Long id,
@@ -208,7 +251,12 @@ public class UserController {
         return ResponseEntity.badRequest().build();
     }
 
-
+    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Успешный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Нет прав на удаление"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(
             @PathVariable Long id,

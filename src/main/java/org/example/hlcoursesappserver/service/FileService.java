@@ -1,8 +1,5 @@
 package org.example.hlcoursesappserver.service;
 
-import com.google.api.client.http.FileContent;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
 import org.example.hlcoursesappserver.model.Course;
 import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.model.Specialist;
@@ -19,46 +16,52 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 /**
- * Сервис для работы с файлами, включая загрузку и получение URL файлов на Google Drive.
+ * Сервис для работы с файлами, использующий локальное хранилище.
+ * Код для Google Drive закомментирован для возможного использования в будущем.
  */
 @Service
 public class FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileService.class);
-    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9]";
+    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.]";
+    private static final String[] ALLOWED_FILE_TYPES = {
+            "image/jpeg", "image/jpg","image/png", "image/gif",
+            "video/mp4", "video/mpeg", "application/pdf"
+    };
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    private final Drive driveService;
     private final SpecialistRepository specialistRepository;
     private final ListenerRepository listenerRepository;
     private final CourseRepository courseRepository;
 
+    // Закомментированная зависимость для Google Drive
+    /*
+    private final Drive driveService;
     @Value("${google.drive.profile-photos-folder-id:1fTKb6ARwNhdNVN0fVyXcPsKH4rCdRgdl}")
     private String profilePhotosFolderId;
+    */
 
-    /**
-     * Конструктор с внедрением зависимостей.
-     *
-     * @param driveService          сервис Google Drive
-     * @param specialistRepository  репозиторий специалистов
-     * @param listenerRepository    репозиторий слушателей
-     * @param courseRepository      репозиторий курсов
-     */
+    @Value("${file.upload-dir:/uploads}")
+    private String uploadDir;
+
+    @Value("${server.base-url:http://localhost:8080}")
+    private String serverBaseUrl;
+
     @Autowired
-    public FileService(Drive driveService,
-                       SpecialistRepository specialistRepository,
+    public FileService(SpecialistRepository specialistRepository,
                        ListenerRepository listenerRepository,
                        CourseRepository courseRepository) {
-        this.driveService = driveService;
         this.specialistRepository = specialistRepository;
         this.listenerRepository = listenerRepository;
         this.courseRepository = courseRepository;
     }
 
     /**
-     * Загружает фото профиля пользователя на Google Drive и обновляет URL в базе данных.
+     * Загружает фото профиля пользователя в локальное хранилище и обновляет URL в базе данных.
      *
      * @param file   файл фото профиля
      * @param userId идентификатор пользователя
@@ -69,9 +72,10 @@ public class FileService {
     public String uploadProfilePhoto(MultipartFile file, Long userId, String role) throws IOException {
         LOGGER.info("Загрузка фото профиля для пользователя ID: {} с ролью: {}", userId, role);
 
+        validateFile(file);
         String email = getUserEmail(userId, role);
         String fileName = generateFileName(email, file.getOriginalFilename());
-        String fileUrl = uploadFileToDrive(file, fileName);
+        String fileUrl = saveFile(file, fileName);
 
         updateUserProfilePhoto(userId, role, fileUrl);
         LOGGER.info("Фото профиля успешно загружено: {}", fileUrl);
@@ -79,7 +83,7 @@ public class FileService {
     }
 
     /**
-     * Загружает обложку курса на Google Drive и обновляет URL в базе данных.
+     * Загружает обложку курса в локальное хранилище и обновляет URL в базе данных.
      *
      * @param file     файл обложки курса
      * @param courseId идентификатор курса
@@ -89,11 +93,33 @@ public class FileService {
     public String uploadCourseCover(MultipartFile file, Long courseId) throws IOException {
         LOGGER.info("Загрузка обложки для курса ID: {}", courseId);
 
+        validateFile(file);
         String fileName = generateFileName("course_" + courseId, file.getOriginalFilename());
-        String fileUrl = uploadFileToDrive(file, fileName);
+        String fileUrl = saveFile(file, fileName);
 
         updateCourseCover(courseId, fileUrl);
         LOGGER.info("Обложка курса успешно загружена: {}", fileUrl);
+        return fileUrl;
+    }
+
+    /**
+     * Загружает видео для курса в локальное хранилище.
+     *
+     * @param file     файл видео
+     * @param courseId идентификатор курса
+     * @return URL загруженного файла
+     * @throws IOException если произошла ошибка при загрузке файла
+     */
+    public String uploadCourseVideo(MultipartFile file, Long courseId) throws IOException {
+        LOGGER.info("Загрузка видео для курса ID: {}", courseId);
+
+        validateFile(file);
+        String fileName = generateFileName("video_course_" + courseId, file.getOriginalFilename());
+        String fileUrl = saveFile(file, fileName);
+
+        // Если нужно сохранить URL видео в базе, раскомментируйте:
+        // updateCourseVideo(courseId, fileUrl);
+        LOGGER.info("Видео курса успешно загружено: {}", fileUrl);
         return fileUrl;
     }
 
@@ -153,30 +179,86 @@ public class FileService {
     }
 
     private String generateFileName(String prefix, String originalFileName) {
-        return (prefix + "_" + originalFileName).replaceAll(FILE_NAME_REGEX, "_");
+        String extension = originalFileName != null && originalFileName.contains(".")
+                ? originalFileName.substring(originalFileName.lastIndexOf("."))
+                : ".jpg";
+        String uniqueId = UUID.randomUUID().toString();
+        return (prefix + "_" + uniqueId + extension).replaceAll(FILE_NAME_REGEX, "_");
     }
 
-    private String uploadFileToDrive(MultipartFile file, String fileName) throws IOException {
-        Path tempFile = null;
-        try {
-            tempFile = Files.createTempFile("upload-", file.getOriginalFilename());
-            file.transferTo(tempFile.toFile());
+    private void validateFile(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("Файл пустой или отсутствует");
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IOException("Файл слишком большой. Максимальный размер: " + (MAX_FILE_SIZE / (1024 * 1024)) + " МБ");
+        }
+        String contentType = file.getContentType();
+        LOGGER.info("MIME-тип файла: {}, имя файла: {}", contentType, file.getOriginalFilename());
 
-            File fileMetadata = new File()
-                    .setName(fileName)
-                    .setParents(Collections.singletonList(profilePhotosFolderId));
-            FileContent mediaContent = new FileContent(file.getContentType(), tempFile.toFile());
-
-            File uploadedFile = driveService.files().create(fileMetadata, mediaContent)
-                    .setFields("id, webViewLink")
-                    .execute();
-
-            return uploadedFile.getWebViewLink();
-        } finally {
-            if (tempFile != null && Files.exists(tempFile)) {
-                Files.delete(tempFile);
+        boolean isValidType = contentType != null && isAllowedFileType(contentType);
+        if (!isValidType && contentType != null && contentType.equals("image/*")) {
+            // Дополнительная проверка расширения файла
+            String fileName = file.getOriginalFilename();
+            if (fileName != null && (fileName.toLowerCase().endsWith(".jpg") ||
+                    fileName.toLowerCase().endsWith(".jpeg") ||
+                    fileName.toLowerCase().endsWith(".png") ||
+                    fileName.toLowerCase().endsWith(".gif"))) {
+                LOGGER.warn("MIME-тип image/* заменен на основе расширения: {}", fileName);
+                isValidType = true;
             }
         }
+
+        if (!isValidType) {
+            LOGGER.error("Недопустимый тип файла: {}. Разрешены: {}", contentType, String.join(", ", ALLOWED_FILE_TYPES));
+            throw new IOException("Недопустимый тип файла. Разрешены: JPEG, PNG, GIF, MP4, MPEG, PDF");
+        }
+    }
+
+    private boolean isAllowedFileType(String contentType) {
+        for (String allowedType : ALLOWED_FILE_TYPES) {
+            LOGGER.debug(
+                    contentType, allowedType);
+            if (allowedType.equalsIgnoreCase(contentType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String saveFile(MultipartFile file, String fileName) throws IOException {
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        LOGGER.info("Попытка сохранить файл в директорию: {}", uploadPath);
+
+        // Проверяем и создаем директорию
+        if (!Files.exists(uploadPath)) {
+            try {
+                Files.createDirectories(uploadPath);
+                LOGGER.info("Директория создана: {}", uploadPath);
+            } catch (IOException e) {
+                LOGGER.error("Не удалось создать директорию {}: {}", uploadPath, e.getMessage());
+                throw new IOException("Не удалось создать директорию для загрузки файлов: " + e.getMessage(), e);
+            }
+        }
+
+        // Проверяем права на запись
+        if (!Files.isWritable(uploadPath)) {
+            LOGGER.error("Нет прав на запись в директорию: {}", uploadPath);
+            throw new IOException("Нет прав на запись в директорию: " + uploadPath);
+        }
+
+        Path filePath = uploadPath.resolve(fileName);
+        LOGGER.debug("Сохранение файла по пути: {}", filePath);
+        try {
+            file.transferTo(filePath.toFile());
+        } catch (IOException e) {
+            LOGGER.error("Ошибка при сохранении файла {}: {}", filePath, e.getMessage());
+            throw new IOException("Ошибка при сохранении файла: " + e.getMessage(), e);
+        }
+
+        String fileUrl = serverBaseUrl + "/uploads/" + fileName;
+        LOGGER.info("Файл успешно сохранен, URL: {}", fileUrl);
+        return fileUrl;
     }
 
     private void updateUserProfilePhoto(Long userId, String role, String fileUrl) {
@@ -199,4 +281,40 @@ public class FileService {
         course.setPhotoUrl(fileUrl);
         courseRepository.save(course);
     }
+
+    // Если нужно сохранять URL видео в базе данных, раскомментируйте и добавьте поле videoUrl в модель Course
+    /*
+    private void updateCourseVideo(Long courseId, String fileUrl) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Курс с ID " + courseId + " не найден"));
+        course.setVideoUrl(fileUrl);
+        courseRepository.save(course);
+    }
+    */
+
+    // Закомментированный код для Google Drive
+    /*
+    private String uploadFileToDrive(MultipartFile file, String fileName) throws IOException {
+        Path tempFile = null;
+        try {
+            tempFile = Files.createTempFile("upload-", file.getOriginalFilename());
+            file.transferTo(tempFile.toFile());
+
+            File fileMetadata = new File()
+                    .setName(fileName)
+                    .setParents(Collections.singletonList(profilePhotosFolderId));
+            FileContent mediaContent = new FileContent(file.getContentType(), tempFile.toFile());
+
+            File uploadedFile = driveService.files().create(fileMetadata, mediaContent)
+                    .setFields("id, webViewLink")
+                    .execute();
+
+            return uploadedFile.getWebViewLink();
+        } finally {
+            if (tempFile != null && Files.exists(tempFile)) {
+                Files.delete(tempFile);
+            }
+        }
+    }
+    */
 }

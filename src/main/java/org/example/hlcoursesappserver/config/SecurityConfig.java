@@ -33,7 +33,10 @@ public class SecurityConfig {
             "/auth/resend-verification",
             "/auth/change-email",
             "/auth/forgot-password", // Добавлен эндпоинт для запроса восстановления пароля
-            "/auth/reset-password"   // Добавлен эндпоинт для сброса пароля
+            "/auth/reset-password",   // Добавлен эндпоинт для сброса пароля
+            "/uploads/**", // Публичный доступ к файлам
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
     private static final String PUBLIC_GET_PATTERN = "/public/**";
 

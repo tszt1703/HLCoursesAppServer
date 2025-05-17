@@ -20,6 +20,14 @@ public class FileController {
         this.fileService = fileService;
     }
 
+    /**
+     * Загружает фото профиля пользователя (требует аутентификации).
+     *
+     * @param file   файл фото профиля
+     * @param userId идентификатор пользователя
+     * @param role   роль пользователя ("Specialist" или "Listener")
+     * @return JSON с URL загруженного файла
+     */
     @PostMapping("/upload-profile-photo")
     public ResponseEntity<?> uploadProfilePhoto(
             @RequestParam("file") MultipartFile file,
@@ -27,12 +35,19 @@ public class FileController {
             @RequestParam("role") String role) {
         try {
             String fileUrl = fileService.uploadProfilePhoto(file, userId, role);
-            return ResponseEntity.ok().body("Фото профиля успешно загружено: " + fileUrl);
+            return ResponseEntity.ok().body(Map.of("fileUrl", fileUrl));
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Ошибка при загрузке фото профиля: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Ошибка при загрузке фото профиля: " + e.getMessage()));
         }
     }
 
+    /**
+     * Получает URL фото профиля пользователя (публичный).
+     *
+     * @param userId идентификатор пользователя
+     * @param role   роль пользователя ("Specialist" или "Listener")
+     * @return JSON с URL фото профиля
+     */
     @GetMapping("/profile-photo")
     public ResponseEntity<?> getProfilePhotoUrl(
             @RequestParam("userId") Long userId,
@@ -45,26 +60,53 @@ public class FileController {
         }
     }
 
+    /**
+     * Загружает обложку курса (требует аутентификации).
+     *
+     * @param file     файл обложки курса
+     * @param courseId идентификатор курса
+     * @return JSON с URL загруженного файла
+     */
     @PostMapping("/upload-course-cover")
     public ResponseEntity<?> uploadCourseCover(
             @RequestParam("file") MultipartFile file,
             @RequestParam("courseId") Long courseId) {
         try {
             String fileUrl = fileService.uploadCourseCover(file, courseId);
-            return ResponseEntity.ok().body("Обложка курса успешно загружена: " + fileUrl);
+            return ResponseEntity.ok().body(Map.of("fileUrl", fileUrl));
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Ошибка при загрузке обложки курса: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Ошибка при загрузке обложки курса: " + e.getMessage()));
         }
     }
 
     /**
-     * Эндпоинт для получения обложки курса.
+     * Загружает видео для курса (требует аутентификации).
+     *
+     * @param file     файл видео
+     * @param courseId идентификатор курса
+     * @return JSON с URL загруженного файла
+     */
+    @PostMapping("/upload-course-video")
+    public ResponseEntity<?> uploadCourseVideo(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("courseId") Long courseId) {
+        try {
+            String fileUrl = fileService.uploadCourseVideo(file, courseId);
+            return ResponseEntity.ok().body(Map.of("fileUrl", fileUrl));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Ошибка при загрузке видео курса: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Получает URL обложки курса (публичный).
      *
      * @param courseId идентификатор курса
-     * @return URL обложки курса
+     * @return JSON с URL обложки курса
      */
     @GetMapping("/course-cover")
-    public ResponseEntity<?> getCourseCover(@RequestParam("courseId") Long courseId) {
+    public ResponseEntity<?> getCourseCover(
+            @RequestParam("courseId") Long courseId) {
         try {
             String coverUrl = fileService.getCourseCoverUrl(courseId);
             return ResponseEntity.ok().body(Map.of("coverUrl", coverUrl));

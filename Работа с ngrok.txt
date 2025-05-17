@@ -7,3 +7,4 @@ URL с использованием ngrok: https://up-stinkbug-socially.ngrok-fr
 Запуск ngrok: ngrok http --url=up-stinkbug-socially.ngrok-free.app 8080
 
 
+Swagger: http://localhost:8080/swagger-ui/index.html

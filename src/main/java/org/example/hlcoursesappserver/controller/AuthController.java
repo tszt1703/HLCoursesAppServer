@@ -1,5 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.hlcoursesappserver.dto.*;
 import org.example.hlcoursesappserver.exception.InvalidTokenException;
 import org.example.hlcoursesappserver.model.Listener;
@@ -47,6 +49,12 @@ public class AuthController {
         this.mailSender = mailSender;
     }
 
+    @Operation(summary = "Регистрация пользователя", description = "Регистрирует нового пользователя в системе.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Пользователь успешно зарегистрирован"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректные данные"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserDTO>> register(@RequestBody RegistrationRequest request) {
         try {
@@ -61,6 +69,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Авторизация пользователя", description = "Авторизует пользователя и возвращает токены.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Авторизация успешна"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Неверные учетные данные"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         try {
@@ -80,6 +94,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Обновление токенов", description = "Обновляет access и refresh токены.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Токены успешно обновлены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Неверный или истекший refresh токен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<Map<String, String>>> refreshToken(@RequestBody Map<String, String> request) {
         try {
@@ -104,6 +124,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Подтверждение email", description = "Подтверждает email пользователя по токену.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Email успешно подтверждён"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный токен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @GetMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyEmail(@RequestParam("token") String token) {
         try {
@@ -118,6 +144,13 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Повторная отправка письма для подтверждения email", description = "Отправляет повторное письмо для подтверждения email.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный email или пользователь не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Слишком много запросов"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/resend-verification")
     public ResponseEntity<ApiResponse<String>> resendVerification(@RequestBody Map<String, String> request) {
         try {
@@ -148,6 +181,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Изменение email", description = "Изменяет email пользователя.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Email успешно изменён"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный email или пользователь не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/change-email")
     public ResponseEntity<ApiResponse<String>> changeEmail(@RequestBody Map<String, String> request) {
         try {
@@ -182,6 +221,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Запрос на сброс пароля", description = "Отправляет письмо для сброса пароля.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Письмо отправлено"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный email или пользователь не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody Map<String, String> request) {
         try {
@@ -198,6 +243,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "Сброс пароля", description = "Сбрасывает пароль пользователя по токену.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Пароль успешно сброшен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный токен или пароль"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody Map<String, String> request) {
         try {

@@ -1,5 +1,7 @@
 package org.example.hlcoursesappserver.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.hlcoursesappserver.dto.ApiResponse;
 import org.example.hlcoursesappserver.dto.ErrorResponse;
 import org.example.hlcoursesappserver.dto.ReviewRequestDTO;
@@ -27,6 +29,19 @@ public class ReviewController {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Создает новый отзыв.
+     *
+     * @param token   JWT-токен пользователя
+     * @param request данные отзыва
+     * @return созданный отзыв
+     */
+    @Operation(summary = "Создание отзыва", description = "Создает новый отзыв для курса")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Отзыв успешно создан"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> createReview(@RequestHeader("Authorization") String token,
                                                                        @Valid @RequestBody ReviewRequestDTO request) {
@@ -43,6 +58,21 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Обновляет существующий отзыв.
+     *
+     * @param token     JWT-токен пользователя
+     * @param reviewId  ID отзыва
+     * @param request   данные отзыва
+     * @return обновленный отзыв
+     */
+    @Operation(summary = "Обновление отзыва", description = "Обновляет существующий отзыв для курса")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Отзыв успешно обновлен"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Отзыв не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @PutMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> updateReview(@RequestHeader("Authorization") String token,
                                                                        @PathVariable Long reviewId,
@@ -76,6 +106,20 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Получает отзыв по ID курса.
+     *
+     * @param token    JWT-токен пользователя
+     * @param courseId ID курса
+     * @return отзыв
+     */
+    @Operation(summary = "Получение отзыва по ID курса", description = "Получает отзыв для курса по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Отзыв успешно найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Отзыв не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/course/{courseId}")
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> getReviewByCourse(@RequestHeader("Authorization") String token,
                                                                             @PathVariable Long courseId) {
@@ -94,6 +138,20 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Получает отзыв по ID.
+     *
+     * @param token    JWT-токен пользователя
+     * @param reviewId ID отзыва
+     * @return отзыв
+     */
+    @Operation(summary = "Получение отзыва по ID", description = "Получает отзыв по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Отзыв успешно найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Отзыв не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponseDTO>> getReviewById(@RequestHeader("Authorization") String token,
                                                                         @PathVariable Long reviewId) {
@@ -112,6 +170,20 @@ public class ReviewController {
         }
     }
 
+    /**
+     * Получает все отзывы по ID курса.
+     *
+     * @param token    JWT-токен пользователя
+     * @param courseId ID курса
+     * @return список отзывов
+     */
+    @Operation(summary = "Получение всех отзывов по ID курса", description = "Получает все отзывы для курса по его ID")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Отзывы успешно найдены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Отзывы не найдены"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Некорректный запрос"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
     @GetMapping("/course/{courseId}/all")
     public ResponseEntity<ApiResponse<List<ReviewResponseDTO>>> getAllReviewsByCourse(@RequestHeader("Authorization") String token,
                                                                                       @PathVariable Long courseId) {
