@@ -18,11 +18,12 @@ public class Lesson {
     private String title;
 
     private String content;
-    private String photoUrl;
-    private String videoUrl;
 
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer position;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<LessonFile> files;
 
     @OneToMany(mappedBy = "lessonId", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Test> tests;
@@ -37,7 +38,7 @@ public class Lesson {
         this.lessonId = lessonId;
     }
 
-    public Long  getModuleId() {
+    public Long getModuleId() {
         return moduleId;
     }
 
@@ -53,29 +54,12 @@ public class Lesson {
         this.title = title;
     }
 
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
     }
 
     public Integer getPosition() {
@@ -86,19 +70,29 @@ public class Lesson {
         this.position = position;
     }
 
-    public List<Test> getTests() { return tests; }
-    public void setTests(List<Test> tests) { this.tests = tests; }
+    public List<LessonFile> getFiles() {
+        return files;
+    }
 
+    public void setFiles(List<LessonFile> files) {
+        this.files = files;
+    }
+
+    public List<Test> getTests() {
+        return tests;
+    }
+
+    public void setTests(List<Test> tests) {
+        this.tests = tests;
+    }
 
     public Lesson() {
     }
 
-    public Lesson(Long moduleId, String title, String content, String photoUrl, String videoUrl, Integer position) {
+    public Lesson(Long moduleId, String title, String content, Integer position) {
         this.moduleId = moduleId;
         this.title = title;
         this.content = content;
-        this.photoUrl = photoUrl;
-        this.videoUrl = videoUrl;
         this.position = position;
     }
 
@@ -109,10 +103,7 @@ public class Lesson {
                 ", moduleId=" + moduleId +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
-                ", photoUrl='" + photoUrl + '\'' +
-                ", videoUrl='" + videoUrl + '\'' +
                 ", position=" + position +
                 '}';
     }
 }
-

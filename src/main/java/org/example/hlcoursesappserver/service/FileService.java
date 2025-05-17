@@ -1,11 +1,10 @@
 package org.example.hlcoursesappserver.service;
 
-import org.example.hlcoursesappserver.model.Course;
-import org.example.hlcoursesappserver.model.Listener;
-import org.example.hlcoursesappserver.model.Specialist;
-import org.example.hlcoursesappserver.repository.CourseRepository;
-import org.example.hlcoursesappserver.repository.ListenerRepository;
-import org.example.hlcoursesappserver.repository.SpecialistRepository;
+import com.google.api.client.http.FileContent;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
+import org.example.hlcoursesappserver.model.*;
+import org.example.hlcoursesappserver.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,52 +15,51 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Сервис для работы с файлами, использующий локальное хранилище.
- * Код для Google Drive закомментирован для возможного использования в будущем.
+ * Сервис для работы с файлами, включая загрузку и получение URL файлов на Google Drive.
  */
 @Service
 public class FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileService.class);
-    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.]";
-    private static final String[] ALLOWED_FILE_TYPES = {
-            "image/jpeg", "image/jpg","image/png", "image/gif",
-            "video/mp4", "video/mpeg", "application/pdf"
-    };
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9]";
 
+    private final Drive driveService;
     private final SpecialistRepository specialistRepository;
     private final ListenerRepository listenerRepository;
     private final CourseRepository courseRepository;
+    private final LessonRepository lessonRepository;
+    private final LessonFileRepository lessonFileRepository;
 
-    // Закомментированная зависимость для Google Drive
-    /*
-    private final Drive driveService;
     @Value("${google.drive.profile-photos-folder-id:1fTKb6ARwNhdNVN0fVyXcPsKH4rCdRgdl}")
     private String profilePhotosFolderId;
-    */
 
-    @Value("${file.upload-dir:/uploads}")
-    private String uploadDir;
-
-    @Value("${server.base-url:http://localhost:8080}")
-    private String serverBaseUrl;
-
+    /**
+     * Конструктор с внедрением зависимостей.
+     *
+     * @param driveService          сервис Google Drive
+     * @param specialistRepository  репозиторий специалистов
+     * @param listenerRepository    репозиторий слушателей
+     * @param courseRepository      репозиторий курсов
+     */
     @Autowired
-    public FileService(SpecialistRepository specialistRepository,
+    public FileService(Drive driveService,
+                       SpecialistRepository specialistRepository,
                        ListenerRepository listenerRepository,
-                       CourseRepository courseRepository) {
+                       CourseRepository courseRepository, LessonRepository lessonRepository, LessonFileRepository lessonFileRepository) {
+        this.driveService = driveService;
         this.specialistRepository = specialistRepository;
         this.listenerRepository = listenerRepository;
         this.courseRepository = courseRepository;
+        this.lessonRepository = lessonRepository;
+        this.lessonFileRepository = lessonFileRepository;
     }
 
     /**
-     * Загружает фото профиля пользователя в локальное хранилище и обновляет URL в базе данных.
+     * Загружает фото профиля пользователя на Google Drive и обновляет URL в базе данных.
      *
      * @param file   файл фото профиля
      * @param userId идентификатор пользователя
@@ -72,10 +70,9 @@ public class FileService {
     public String uploadProfilePhoto(MultipartFile file, Long userId, String role) throws IOException {
         LOGGER.info("Загрузка фото профиля для пользователя ID: {} с ролью: {}", userId, role);
 
-        validateFile(file);
         String email = getUserEmail(userId, role);
         String fileName = generateFileName(email, file.getOriginalFilename());
-        String fileUrl = saveFile(file, fileName);
+        String fileUrl = uploadFileToDrive(file, fileName);
 
         updateUserProfilePhoto(userId, role, fileUrl);
         LOGGER.info("Фото профиля успешно загружено: {}", fileUrl);
@@ -83,7 +80,7 @@ public class FileService {
     }
 
     /**
-     * Загружает обложку курса в локальное хранилище и обновляет URL в базе данных.
+     * Загружает обложку курса на Google Drive и обновляет URL в базе данных.
      *
      * @param file     файл обложки курса
      * @param courseId идентификатор курса
@@ -93,33 +90,11 @@ public class FileService {
     public String uploadCourseCover(MultipartFile file, Long courseId) throws IOException {
         LOGGER.info("Загрузка обложки для курса ID: {}", courseId);
 
-        validateFile(file);
         String fileName = generateFileName("course_" + courseId, file.getOriginalFilename());
-        String fileUrl = saveFile(file, fileName);
+        String fileUrl = uploadFileToDrive(file, fileName);
 
         updateCourseCover(courseId, fileUrl);
         LOGGER.info("Обложка курса успешно загружена: {}", fileUrl);
-        return fileUrl;
-    }
-
-    /**
-     * Загружает видео для курса в локальное хранилище.
-     *
-     * @param file     файл видео
-     * @param courseId идентификатор курса
-     * @return URL загруженного файла
-     * @throws IOException если произошла ошибка при загрузке файла
-     */
-    public String uploadCourseVideo(MultipartFile file, Long courseId) throws IOException {
-        LOGGER.info("Загрузка видео для курса ID: {}", courseId);
-
-        validateFile(file);
-        String fileName = generateFileName("video_course_" + courseId, file.getOriginalFilename());
-        String fileUrl = saveFile(file, fileName);
-
-        // Если нужно сохранить URL видео в базе, раскомментируйте:
-        // updateCourseVideo(courseId, fileUrl);
-        LOGGER.info("Видео курса успешно загружено: {}", fileUrl);
         return fileUrl;
     }
 
@@ -164,6 +139,14 @@ public class FileService {
         }
     }
 
+    /**
+     * Получает email пользователя по его ID и роли.
+     *
+     * @param userId идентификатор пользователя
+     * @param role   роль пользователя ("Specialist" или "Listener")
+     * @return email пользователя
+     * @throws IllegalArgumentException если пользователь не найден
+     */
     private String getUserEmail(Long userId, String role) {
         if ("Specialist".equalsIgnoreCase(role)) {
             return specialistRepository.findById(userId)
@@ -178,122 +161,25 @@ public class FileService {
         }
     }
 
+    /**
+     * Генерирует имя файла, заменяя недопустимые символы на "_".
+     *
+     * @param prefix           префикс для имени файла
+     * @param originalFileName оригинальное имя файла
+     * @return сгенерированное имя файла
+     */
     private String generateFileName(String prefix, String originalFileName) {
-        String extension = originalFileName != null && originalFileName.contains(".")
-                ? originalFileName.substring(originalFileName.lastIndexOf("."))
-                : ".jpg";
-        String uniqueId = UUID.randomUUID().toString();
-        return (prefix + "_" + uniqueId + extension).replaceAll(FILE_NAME_REGEX, "_");
+        return (prefix + "_" + originalFileName).replaceAll(FILE_NAME_REGEX, "_");
     }
 
-    private void validateFile(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw new IOException("Файл пустой или отсутствует");
-        }
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IOException("Файл слишком большой. Максимальный размер: " + (MAX_FILE_SIZE / (1024 * 1024)) + " МБ");
-        }
-        String contentType = file.getContentType();
-        LOGGER.info("MIME-тип файла: {}, имя файла: {}", contentType, file.getOriginalFilename());
-
-        boolean isValidType = contentType != null && isAllowedFileType(contentType);
-        if (!isValidType && contentType != null && contentType.equals("image/*")) {
-            // Дополнительная проверка расширения файла
-            String fileName = file.getOriginalFilename();
-            if (fileName != null && (fileName.toLowerCase().endsWith(".jpg") ||
-                    fileName.toLowerCase().endsWith(".jpeg") ||
-                    fileName.toLowerCase().endsWith(".png") ||
-                    fileName.toLowerCase().endsWith(".gif"))) {
-                LOGGER.warn("MIME-тип image/* заменен на основе расширения: {}", fileName);
-                isValidType = true;
-            }
-        }
-
-        if (!isValidType) {
-            LOGGER.error("Недопустимый тип файла: {}. Разрешены: {}", contentType, String.join(", ", ALLOWED_FILE_TYPES));
-            throw new IOException("Недопустимый тип файла. Разрешены: JPEG, PNG, GIF, MP4, MPEG, PDF");
-        }
-    }
-
-    private boolean isAllowedFileType(String contentType) {
-        for (String allowedType : ALLOWED_FILE_TYPES) {
-            LOGGER.debug(
-                    contentType, allowedType);
-            if (allowedType.equalsIgnoreCase(contentType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String saveFile(MultipartFile file, String fileName) throws IOException {
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        LOGGER.info("Попытка сохранить файл в директорию: {}", uploadPath);
-
-        // Проверяем и создаем директорию
-        if (!Files.exists(uploadPath)) {
-            try {
-                Files.createDirectories(uploadPath);
-                LOGGER.info("Директория создана: {}", uploadPath);
-            } catch (IOException e) {
-                LOGGER.error("Не удалось создать директорию {}: {}", uploadPath, e.getMessage());
-                throw new IOException("Не удалось создать директорию для загрузки файлов: " + e.getMessage(), e);
-            }
-        }
-
-        // Проверяем права на запись
-        if (!Files.isWritable(uploadPath)) {
-            LOGGER.error("Нет прав на запись в директорию: {}", uploadPath);
-            throw new IOException("Нет прав на запись в директорию: " + uploadPath);
-        }
-
-        Path filePath = uploadPath.resolve(fileName);
-        LOGGER.debug("Сохранение файла по пути: {}", filePath);
-        try {
-            file.transferTo(filePath.toFile());
-        } catch (IOException e) {
-            LOGGER.error("Ошибка при сохранении файла {}: {}", filePath, e.getMessage());
-            throw new IOException("Ошибка при сохранении файла: " + e.getMessage(), e);
-        }
-
-        String fileUrl = serverBaseUrl + "/uploads/" + fileName;
-        LOGGER.info("Файл успешно сохранен, URL: {}", fileUrl);
-        return fileUrl;
-    }
-
-    private void updateUserProfilePhoto(Long userId, String role, String fileUrl) {
-        if ("Specialist".equalsIgnoreCase(role)) {
-            Specialist specialist = specialistRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Специалист с ID " + userId + " не найден"));
-            specialist.setProfilePhotoUrl(fileUrl);
-            specialistRepository.save(specialist);
-        } else if ("Listener".equalsIgnoreCase(role)) {
-            Listener listener = listenerRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Слушатель с ID " + userId + " не найден"));
-            listener.setProfilePhotoUrl(fileUrl);
-            listenerRepository.save(listener);
-        }
-    }
-
-    private void updateCourseCover(Long courseId, String fileUrl) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Курс с ID " + courseId + " не найден"));
-        course.setPhotoUrl(fileUrl);
-        courseRepository.save(course);
-    }
-
-    // Если нужно сохранять URL видео в базе данных, раскомментируйте и добавьте поле videoUrl в модель Course
-    /*
-    private void updateCourseVideo(Long courseId, String fileUrl) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Курс с ID " + courseId + " не найден"));
-        course.setVideoUrl(fileUrl);
-        courseRepository.save(course);
-    }
-    */
-
-    // Закомментированный код для Google Drive
-    /*
+    /**
+     * Загружает файл на Google Drive и возвращает его URL.
+     *
+     * @param file      файл для загрузки
+     * @param fileName  имя файла
+     * @return URL загруженного файла
+     * @throws IOException если произошла ошибка при загрузке файла
+     */
     private String uploadFileToDrive(MultipartFile file, String fileName) throws IOException {
         Path tempFile = null;
         try {
@@ -316,5 +202,150 @@ public class FileService {
             }
         }
     }
-    */
+
+    /**
+     * Обновляет URL фото профиля пользователя в базе данных.
+     *
+     * @param userId идентификатор пользователя
+     * @param role   роль пользователя ("Specialist" или "Listener")
+     * @param fileUrl URL загруженного файла
+     */
+    private void updateUserProfilePhoto(Long userId, String role, String fileUrl) {
+        if ("Specialist".equalsIgnoreCase(role)) {
+            Specialist specialist = specialistRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Специалист с ID " + userId + " не найден"));
+            specialist.setProfilePhotoUrl(fileUrl);
+            specialistRepository.save(specialist);
+        } else if ("Listener".equalsIgnoreCase(role)) {
+            Listener listener = listenerRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Слушатель с ID " + userId + " не найден"));
+            listener.setProfilePhotoUrl(fileUrl);
+            listenerRepository.save(listener);
+        }
+    }
+
+    /**
+     * Обновляет URL обложки курса в базе данных.
+     *
+     * @param courseId идентификатор курса
+     * @param fileUrl  URL загруженного файла
+     */
+    private void updateCourseCover(Long courseId, String fileUrl) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Курс с ID " + courseId + " не найден"));
+        course.setPhotoUrl(fileUrl);
+        courseRepository.save(course);
+    }
+
+    /**
+     * Загружает файл для урока на Google Drive и сохраняет информацию в базе данных.
+     *
+     * @param file     файл для загрузки
+     * @param lessonId идентификатор урока
+     * @param fileType тип файла (например, "photo", "video", "document")
+     * @return объект LessonFile с информацией о загруженном файле
+     * @throws IOException если произошла ошибка при загрузке файла
+     */
+    public LessonFile uploadLessonFile(MultipartFile file, Long lessonId, String fileType) throws IOException {
+        LOGGER.info("Загрузка файла для урока ID: {}", lessonId);
+
+        String fileName = generateFileName("lesson_" + lessonId, file.getOriginalFilename());
+        String fileUrl = uploadFileToDrive(file, fileName);
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Урок с ID " + lessonId + " не найден"));
+
+        LessonFile lessonFile = new LessonFile(lesson, fileType, fileName, fileUrl);
+        return lessonFileRepository.save(lessonFile);
+    }
+
+    /**
+     * Получает список файлов для урока.
+     *
+     * @param lessonId идентификатор урока
+     * @return список файлов урока
+     */
+    public List<LessonFile> getLessonFiles(Long lessonId) {
+        LOGGER.debug("Получение файлов для урока ID: {}", lessonId);
+        return lessonFileRepository.findByLessonId(lessonId);
+    }
+
+    // Метод для удаления файла с Google Drive
+    private void deleteFileFromDrive(String fileUrl) {
+        try {
+            String fileId = extractFileIdFromUrl(fileUrl);
+            driveService.files().delete(fileId).execute();
+        } catch (Exception e) {
+            LOGGER.error("Ошибка при удалении файла с Google Drive: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Удаляет файлы урока с Google Drive и обновляет информацию в базе данных.
+     *
+     * @param lessonId идентификатор урока
+     */
+    public void deleteLessonFiles(Long lessonId) {
+        List<LessonFile> files = lessonFileRepository.findByLessonId(lessonId);
+        for (LessonFile file : files) {
+            deleteFileFromDrive(file.getFileUrl());
+            lessonFileRepository.delete(file);
+        }
+    }
+
+    /**
+     * Удаляет обложку курса с Google Drive и обновляет информацию в базе данных.
+     *
+     * @param courseId идентификатор курса
+     */
+    public void deleteCourseCover(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Курс с ID " + courseId + " не найден"));
+        if (course.getPhotoUrl() != null) {
+            deleteFileFromDrive(course.getPhotoUrl());
+            course.setPhotoUrl(null);
+            courseRepository.save(course);
+        }
+    }
+
+    /**
+     * Удаляет фото профиля пользователя.
+     *
+     * @param userId идентификатор пользователя
+     * @param role   роль пользователя ("Specialist" или "Listener")
+     */
+    public void deleteProfilePhoto(Long userId, String role) {
+        if ("Specialist".equalsIgnoreCase(role)) {
+            Specialist specialist = specialistRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Специалист с ID " + userId + " не найден"));
+            if (specialist.getProfilePhotoUrl() != null) {
+                deleteFileFromDrive(specialist.getProfilePhotoUrl());
+                specialist.setProfilePhotoUrl(null);
+                specialistRepository.save(specialist);
+            }
+        } else if ("Listener".equalsIgnoreCase(role)) {
+            Listener listener = listenerRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Слушатель с ID " + userId + " не найден"));
+            if (listener.getProfilePhotoUrl() != null) {
+                deleteFileFromDrive(listener.getProfilePhotoUrl());
+                listener.setProfilePhotoUrl(null);
+                listenerRepository.save(listener);
+            }
+        }
+    }
+
+    /**
+     * Извлекает ID файла из URL.
+     *
+     * @param fileUrl URL файла
+     * @return ID файла
+     */
+    private String extractFileIdFromUrl(String fileUrl) {
+        if (fileUrl == null || !fileUrl.contains("/")) {
+            throw new IllegalArgumentException("Некорректный URL файла: " + fileUrl);
+        }
+        int startIndex = fileUrl.lastIndexOf("/") + 1;
+        int endIndex = fileUrl.contains("?") ? fileUrl.indexOf("?") : fileUrl.length();
+        return fileUrl.substring(startIndex, endIndex);
+    }
 }
