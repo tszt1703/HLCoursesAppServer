@@ -33,3 +33,4 @@ build/
 .vscode/
 
 tokens/StoredCredential
+/tokens/
