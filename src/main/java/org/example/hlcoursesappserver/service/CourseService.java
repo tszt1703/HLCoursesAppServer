@@ -188,8 +188,6 @@ public class CourseService {
         lesson.setModuleId(moduleId);
         lesson.setTitle(lessonRequest.getTitle());
         lesson.setContent(lessonRequest.getContent());
-        lesson.setPhotoUrl(lessonRequest.getPhotoUrl());
-        lesson.setVideoUrl(lessonRequest.getVideoUrl());
 
         List<Lesson> existingLessons = lessonRepository.findByModuleId(moduleId);
         int newPosition = 1;
@@ -295,8 +293,6 @@ public class CourseService {
             Lesson lesson = lessonOpt.get();
             lesson.setTitle(updateRequest.getTitle());
             if (updateRequest.getContent() != null) lesson.setContent(updateRequest.getContent());
-            if (updateRequest.getPhotoUrl() != null) lesson.setPhotoUrl(updateRequest.getPhotoUrl());
-            if (updateRequest.getVideoUrl() != null) lesson.setVideoUrl(updateRequest.getVideoUrl());
             if (updateRequest.getPosition() != null) lesson.setPosition(updateRequest.getPosition());
             return Optional.of(lessonRepository.save(lesson));
         }

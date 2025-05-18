@@ -1,24 +1,28 @@
 package org.example.hlcoursesappserver.dto;
 
 import org.example.hlcoursesappserver.model.Lesson;
+import org.example.hlcoursesappserver.model.LessonFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class LessonDTO {
     private Long lessonId;
     private Long moduleId;
     private String title;
     private String content;
-    private String photoUrl;
-    private String videoUrl;
     private Integer position;
+    private List<String> fileUrls;
 
     public LessonDTO(Lesson lesson) {
         this.lessonId = lesson.getLessonId();
         this.moduleId = lesson.getModuleId();
         this.title = lesson.getTitle();
         this.content = lesson.getContent();
-        this.photoUrl = lesson.getPhotoUrl();
-        this.videoUrl = lesson.getVideoUrl();
         this.position = lesson.getPosition();
+        this.fileUrls = lesson.getFiles().stream()
+                .map(LessonFile::getFileUrl)
+                .collect(Collectors.toList());
     }
 
     // Getters and setters
@@ -30,10 +34,8 @@ public class LessonDTO {
     public void setTitle(String title) { this.title = title; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
-    public String getVideoUrl() { return videoUrl; }
-    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
     public Integer getPosition() { return position; }
     public void setPosition(Integer position) { this.position = position; }
+    public List<String> getFileUrls() { return fileUrls; }
+    public void setFileUrls(List<String> fileUrls) { this.fileUrls = fileUrls; }
 }

@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LessonFileRepository extends JpaRepository<LessonFile, Long> {
-    List<LessonFile> findByLessonId(Long lessonId);
+    List<LessonFile> findByLesson_LessonId(Long lessonId);
 }

@@ -267,7 +267,7 @@ public class FileService {
      */
     public List<LessonFile> getLessonFiles(Long lessonId) {
         LOGGER.debug("Получение файлов для урока ID: {}", lessonId);
-        return lessonFileRepository.findByLessonId(lessonId);
+        return lessonFileRepository.findByLesson_LessonId(lessonId);
     }
 
     // Метод для удаления файла с Google Drive
@@ -286,7 +286,7 @@ public class FileService {
      * @param lessonId идентификатор урока
      */
     public void deleteLessonFiles(Long lessonId) {
-        List<LessonFile> files = lessonFileRepository.findByLessonId(lessonId);
+        List<LessonFile> files = lessonFileRepository.findByLesson_LessonId(lessonId);
         for (LessonFile file : files) {
             deleteFileFromDrive(file.getFileUrl());
             lessonFileRepository.delete(file);

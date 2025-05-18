@@ -11,9 +11,6 @@ public class LessonRequest {
     // Контент урока, например, текст или ссылка на материал
     private String content;
 
-    private String photoUrl;
-    private String videoUrl;
-
     private Integer position;
 
     public LessonRequest() {
@@ -33,22 +30,6 @@ public class LessonRequest {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
     }
 
     public Integer getPosition() {
