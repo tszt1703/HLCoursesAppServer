@@ -4,6 +4,7 @@ import org.example.hlcoursesappserver.model.Specialist;
 import org.example.hlcoursesappserver.repository.SpecialistRepository;
 import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,11 +37,13 @@ public class SpecialistService implements UserService<Specialist> {
     }
 
     @Override
+    @Cacheable("specialists")
     public Optional<Specialist> getUserByEmail(String email) {
         return specialistRepository.findByEmail(email);
     }
 
     @Override
+    @Cacheable("specialists")
     public Specialist getUserById(Long id) {
         return specialistRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Specialist not found"));

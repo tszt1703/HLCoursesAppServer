@@ -97,7 +97,7 @@ public class RegistrationService {
         message.setTo(email);
         message.setSubject("Подтверждение регистрации");
         message.setText("Пожалуйста, подтвердите вашу электронную почту, перейдя по ссылке:\n" +
-                "http://localhost:8080/auth/verify?token=" + token);
+                "https://up-stinkbug-socially.ngrok-free.app/auth/verify?token=" + token);
         mailSender.send(message);
     }
 

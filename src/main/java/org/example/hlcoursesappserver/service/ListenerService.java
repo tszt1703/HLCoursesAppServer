@@ -5,6 +5,7 @@ import org.example.hlcoursesappserver.model.Listener;
 import org.example.hlcoursesappserver.repository.ListenerRepository;
 import org.example.hlcoursesappserver.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +35,13 @@ public class ListenerService implements UserService<Listener> {
 //    }
 
     @Override
+    @Cacheable("listeners")
     public List<Listener> getAllUsers() {
         return listenerRepository.findAll();
     }
 
     @Override
+    @Cacheable("listeners")
     public Optional<Listener> getUserByEmail(String email) {
         return listenerRepository.findByEmail(email);
     }

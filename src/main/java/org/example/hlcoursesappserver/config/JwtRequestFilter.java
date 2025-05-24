@@ -53,6 +53,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String path = request.getRequestURI();
+
+        // Исключение маршрутов из обработки
+        if (path.startsWith("/auth/register") || path.startsWith("/auth/verify")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authorizationHeader = request.getHeader(AUTH_HEADER);
         String jwt = null;
         Long userId = null;

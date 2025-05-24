@@ -565,10 +565,10 @@ public class CourseController {
         }
     }
 
-    @Operation(summary = "Получение всех курсов слушателя", description = "Возвращает список всех курсов, на которые записан слушатель.")
+    @Operation(summary = "Получение заявки на курс", description = "Возвращает заявку на курс по ID.")
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Список курсов успешно получен"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Слушатель не найден"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Заявка успешно получена"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Заявка не найдена"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/{courseId}/apply")
@@ -690,7 +690,7 @@ public class CourseController {
         }
     }
 
-    @Operation(summary = "Получение статистики прогресса", description = "Возвращает статистику прогресса слушателя по курсу.")
+    @Operation(summary = "Получение прогресса слушателя по курсу", description = "Возвращает статистику прогресса слушателя по курсу.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Статистика успешно получена"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Статистика не найдена"),

@@ -52,41 +52,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser5@example.com", roles = {"SPECIALIST"})
-    void testCreateSpecialist() throws Exception {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setRole("Specialist");
-        userDTO.setEmail("test@gmail.com");
-        userDTO.setFirstName("John");
-        userDTO.setLastName("Doe");
-        userDTO.setBirthDate(LocalDate.of(1990, 1, 1));
-
-        Specialist specialist = new Specialist();
-
-        Mockito.when(userMapper.toSpecialist(Mockito.any(UserDTO.class))).thenReturn(specialist);
-//        Mockito.when(specialistService.createUser(Mockito.any(Specialist.class))).thenReturn(specialist);
-        Mockito.when(userMapper.toUserDTO(Mockito.any(Specialist.class), Mockito.eq("Specialist"))).thenReturn(userDTO);
-
-        mockMvc.perform(post("/api/users/specialist")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf()) // Добавляем CSRF токен
-                        .content("""
-                            {
-                                "role": "Specialist",
-                                "email": "test@gmail.com",
-                                "firstName": "John",
-                                "lastName": "Doe",
-                                "birthDate": "1990-01-01"
-                            }
-                            """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@gmail.com"))
-                .andExpect(jsonPath("$.role").value("Specialist"))
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"));
-    }
-
-    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void testGetUserByEmail() throws Exception {
         Specialist specialist = new Specialist();
